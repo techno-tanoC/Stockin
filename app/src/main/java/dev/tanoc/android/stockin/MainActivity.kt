@@ -138,6 +138,7 @@ class MainActivity : ComponentActivity() {
             items.forEach { item ->
                 Row(
                     modifier = Modifier
+                        .clickable { ShareUrl(item) }
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -147,7 +148,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .weight(1f)
                             .padding(3.dp)
-                            .clickable { ShareUrl(item) }
                             .padding(10.dp)
                     )
                     Box() {
