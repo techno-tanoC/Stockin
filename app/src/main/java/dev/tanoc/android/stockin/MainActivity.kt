@@ -136,45 +136,50 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             items.forEach { item ->
-                Row(
-                    modifier = Modifier
-                        .clickable { ShareUrl(item) }
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = item.title,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(3.dp)
-                            .padding(10.dp)
-                    )
-                    Box() {
-                        val expanded = remember { mutableStateOf(false) }
+                Item(item)
+                Divider()
+            }
+        }
+    }
 
-                        IconButton(
-                            onClick = { expanded.value = true }
-                        ) {
-                            Icon(Icons.Rounded.MoreVert, contentDescription = "")
-                        }
-                        DropdownMenu(
-                            expanded = expanded.value,
-                            onDismissRequest = { expanded.value = false }
-                        ) {
-                            DropdownMenuItem(onClick = { }) {
-                                Text("Archive")
-                            }
-                            DropdownMenuItem(onClick = { }) {
-                                Text("Edit")
-                            }
-                            DropdownMenuItem(onClick = { }) {
-                                Text("Delete")
-                            }
-                        }
+    @Composable
+    fun Item(item: Item) {
+        Row(
+            modifier = Modifier
+                .clickable { ShareUrl(item) }
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = item.title,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(3.dp)
+                    .padding(10.dp)
+            )
+            Box() {
+                val expanded = remember { mutableStateOf(false) }
+
+                IconButton(
+                    onClick = { expanded.value = true }
+                ) {
+                    Icon(Icons.Rounded.MoreVert, contentDescription = "")
+                }
+                DropdownMenu(
+                    expanded = expanded.value,
+                    onDismissRequest = { expanded.value = false }
+                ) {
+                    DropdownMenuItem(onClick = { }) {
+                        Text("Archive")
+                    }
+                    DropdownMenuItem(onClick = { }) {
+                        Text("Edit")
+                    }
+                    DropdownMenuItem(onClick = { }) {
+                        Text("Delete")
                     }
                 }
-                Divider()
             }
         }
     }
