@@ -1,86 +1,51 @@
 package dev.tanoc.android.stockin.repository
 
 import dev.tanoc.android.stockin.model.Item
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+
+data class Resp<T>(
+    val data: T,
+    val message: String
+)
 
 interface IItemRepository {
-    fun index(): List<Item>
+    suspend fun index(): List<Item>
+    suspend fun create(title: String, url: String)
 }
 
-class ItemRepository : IItemRepository {
-    override fun index(): List<Item> {
-        return listOf()
-    }
-}
-
-class MockItemRepository : IItemRepository {
-    private val items = mutableListOf(
-        Item(
-            "YouTube",
-            "https://www.youtube.com/"
-        ),
-        Item(
-            "ニコニコ動画",
-            "https://www.nicovideo.jp/"
-        ),
-        Item(
-            "Google Drive",
-            "https://drive.google.com/"
-        ),
-        Item(
-            "GMail",
-            "https://mail.google.com/"
-        ),
-        Item(
-            "Twitter",
-            "https://twitter.com/home"
-        ),
-        Item(
-            "GitHub",
-            "https://github.com/"
-        ),
-        Item(
-            "GitLab",
-            "https://gitlab.com/"
-        ),
-        Item(
-            "Zenn",
-            "https://zenn.dev/"
-        ),
-        Item(
-            "Qiita",
-            "https://qiita.com/"
-        ),
-        Item(
-            "Rustプログラミング言語",
-            "https://www.rust-lang.org/ja"
-        ),
-        Item(
-            "Haskell Language",
-            "https://www.haskell.org/"
-        ),
-        Item(
-            "Docker",
-            "https://www.docker.com/"
-        ),
-        Item(
-            "The Go Programming Language",
-            "https://golang.org/"
-        ),
-        Item(
-            "TypeScript",
-            "https://www.typescriptlang.org/"
-        ),
-        Item(
-            "Android",
-            "https://www.android.com/"
-        ),
+class ItemRepository(val baseUrl: String) : IItemRepository {
+    data class NewItem(
+        val title: String,
+        val url: String,
     )
 
-    override fun index(): List<Item> {
-        return items.toList()
+    interface Api {
+        @GET("/items")
+        suspend fun index(): Response<Resp<List<Item>>>
+
+        @POST("/items")
+        suspend fun create(@Body newItem: NewItem)
     }
 
-    fun prepend(item: Item) {
-        items.add(0, item)
+    private val service by lazy {
+        Retrofit
+            .Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(Api::class.java)
+    }
+
+    override suspend fun index(): List<Item> {
+        return service.index().body()?.data ?: listOf()
+    }
+
+    override suspend fun create(title: String, url: String) {
+        service.create(NewItem(title, url))
     }
 }
