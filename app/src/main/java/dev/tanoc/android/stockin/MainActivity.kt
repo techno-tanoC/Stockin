@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        model.add(Item(titleField.value, urlField.value))
+                        model.create(titleField.value, urlField.value)
                         clear(openDialog, titleField, urlField)
                     }) {
                         Text("Add")
