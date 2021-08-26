@@ -29,6 +29,6 @@ class MainViewModel : ViewModel() {
 
     private suspend fun reload() {
         val res = itemRepository.index()
-        _items.postValue(res.asReversed())
+        _items.postValue(res)
     }
 }
