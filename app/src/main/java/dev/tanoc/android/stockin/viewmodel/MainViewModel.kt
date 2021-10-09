@@ -9,7 +9,7 @@ import dev.tanoc.android.stockin.repository.ItemRepository
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
-    private val itemRepository = ItemRepository("http://10.0.2.2:3000/")
+    private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
 
     private val _items = MutableLiveData<List<Item>>(listOf())
     val items = _items as LiveData<List<Item>>

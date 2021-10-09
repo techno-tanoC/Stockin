@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 data class Resp<T>(
@@ -18,7 +19,7 @@ interface IItemRepository {
     suspend fun create(title: String, url: String)
 }
 
-class ItemRepository(val baseUrl: String) : IItemRepository {
+class ItemRepository(val baseUrl: String, val token: String) : IItemRepository {
     data class NewItem(
         val title: String,
         val url: String,
@@ -26,10 +27,10 @@ class ItemRepository(val baseUrl: String) : IItemRepository {
 
     interface Api {
         @GET("/items")
-        suspend fun index(): Response<Resp<List<Item>>>
+        suspend fun index(@Header("Authorization") token: String): Response<Resp<List<Item>>>
 
         @POST("/items")
-        suspend fun create(@Body newItem: NewItem)
+        suspend fun create(@Header("Authorization") token: String, @Body newItem: NewItem)
     }
 
     private val service by lazy {
@@ -42,10 +43,10 @@ class ItemRepository(val baseUrl: String) : IItemRepository {
     }
 
     override suspend fun index(): List<Item> {
-        return service.index().body()?.data ?: listOf()
+        return service.index(this.token).body()?.data ?: listOf()
     }
 
     override suspend fun create(title: String, url: String) {
-        service.create(NewItem(title, url))
+        service.create(this.token, NewItem(title, url))
     }
 }
