@@ -29,9 +29,21 @@ class MainViewModel : ViewModel() {
 
     fun patch(id: Int, title: String, url: String) {
         val list = _items.value!!.toMutableList()
-        val item = list.find { it.id == id }
-        item?.title = title
-        item?.url = url
+        list.find { it.id == id }?.let {
+            it.title = title
+            it.url = url
+        }
+        _items.value = list.toList()
+    }
+
+    fun remove(id: Int) {
+        viewModelScope.launch {
+            itemRepository.delete(id)
+
+            val list = _items.value!!.toMutableList()
+            list.removeIf { it.id == id }
+            _items.value = list.toList()
+        }
     }
 
     private suspend fun reload() {

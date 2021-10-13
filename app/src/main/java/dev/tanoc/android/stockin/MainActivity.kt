@@ -126,7 +126,10 @@ class MainActivity : ComponentActivity() {
                     DropdownMenuItem(onClick = { }) {
                         Text("Edit")
                     }
-                    DropdownMenuItem(onClick = { }) {
+                    DropdownMenuItem(onClick = {
+                        model.remove(item.id)
+                        expanded.value = false
+                    }) {
                         Text("Delete")
                     }
                 }

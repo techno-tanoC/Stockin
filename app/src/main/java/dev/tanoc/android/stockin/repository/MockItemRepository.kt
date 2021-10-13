@@ -90,4 +90,8 @@ class MockItemRepository : IItemRepository {
         items.add(item)
         return item
     }
+
+    override suspend fun delete(id: Int) {
+        TODO("Not yet implemented")
+    }
 }
