@@ -50,7 +50,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Container() {
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            Toast.makeText(this, "$it", Toast.LENGTH_LONG).show()
+            val id = it.data?.getIntExtra("id", 0)
+            val title = it.data?.getStringExtra("title")
+            val url = it.data?.getStringExtra("url")
+
+            if (id != null && title != null && url != null) {
+                model.prepend(id, title, url)
+            }
         }
 
         Scaffold(

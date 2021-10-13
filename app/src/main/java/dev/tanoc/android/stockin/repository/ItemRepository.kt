@@ -9,14 +9,13 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
-data class Resp<T>(
+data class Data<T>(
     val data: T,
-    val message: String
 )
 
 interface IItemRepository {
-    suspend fun index(): List<Item>
-    suspend fun create(title: String, url: String)
+    suspend fun index(): List<Item>?
+    suspend fun create(title: String, url: String): Item?
 }
 
 class ItemRepository(val baseUrl: String, val token: String) : IItemRepository {
@@ -27,10 +26,10 @@ class ItemRepository(val baseUrl: String, val token: String) : IItemRepository {
 
     interface Api {
         @GET("/items")
-        suspend fun index(@Header("Authorization") token: String): Response<Resp<List<Item>>>
+        suspend fun index(@Header("Authorization") token: String): Response<Data<List<Item>>>
 
         @POST("/items")
-        suspend fun create(@Header("Authorization") token: String, @Body newItem: NewItem)
+        suspend fun create(@Header("Authorization") token: String, @Body newItem: NewItem): Response<Data<Item>>
     }
 
     private val service by lazy {
@@ -42,11 +41,11 @@ class ItemRepository(val baseUrl: String, val token: String) : IItemRepository {
             .create(Api::class.java)
     }
 
-    override suspend fun index(): List<Item> {
-        return service.index(this.token).body()?.data ?: listOf()
+    override suspend fun index(): List<Item>? {
+        return service.index(this.token).body()?.data
     }
 
-    override suspend fun create(title: String, url: String) {
-        service.create(this.token, NewItem(title, url))
+    override suspend fun create(title: String, url: String): Item? {
+        return service.create(this.token, NewItem(title, url)).body()?.data
     }
 }

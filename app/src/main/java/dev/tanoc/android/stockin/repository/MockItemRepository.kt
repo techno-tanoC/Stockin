@@ -85,7 +85,9 @@ class MockItemRepository : IItemRepository {
         return items.toList()
     }
 
-    override suspend fun create(title: String, url: String) {
-        items.add(Item(items.size + 1, title, url))
+    override suspend fun create(title: String, url: String): Item {
+        val item = Item(items.size + 1, title, url)
+        items.add(item)
+        return item
     }
 }
