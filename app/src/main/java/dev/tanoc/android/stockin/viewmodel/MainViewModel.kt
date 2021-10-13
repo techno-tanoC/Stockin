@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
     private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
 
-    private val _items = MutableLiveData<MutableList<Item>>(mutableListOf())
+    private val _items = MutableLiveData<List<Item>>(listOf())
     val items = _items as LiveData<List<Item>>
 
     fun load() {
@@ -22,13 +22,15 @@ class MainViewModel : ViewModel() {
 
     fun prepend(id: Int, title: String, url: String) {
         val item = Item(id, title, url)
-        val list = mutableListOf(item)
-        list.addAll(_items.value!!)
-        _items.value = list
+        val list = _items.value!!.toMutableList()
+        list.add(0, item)
+        _items.value = list.toList()
     }
 
     private suspend fun reload() {
-        val res = itemRepository.index() ?: listOf()
-        _items.postValue(res.toMutableList())
+        val res = itemRepository.index()
+        if (res != null) {
+            _items.postValue(res)
+        }
     }
 }
