@@ -20,13 +20,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun create(title: String, url: String) {
-        viewModelScope.launch {
-            itemRepository.create(title, url)
-            reload()
-        }
-    }
-
     private suspend fun reload() {
         val res = itemRepository.index()
         _items.postValue(res)
