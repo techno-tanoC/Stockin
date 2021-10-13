@@ -27,6 +27,13 @@ class MainViewModel : ViewModel() {
         _items.value = list.toList()
     }
 
+    fun patch(id: Int, title: String, url: String) {
+        val list = _items.value!!.toMutableList()
+        val item = list.find { it.id == id }
+        item?.title = title
+        item?.url = url
+    }
+
     private suspend fun reload() {
         val res = itemRepository.index()
         if (res != null) {
