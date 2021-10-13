@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 TopAppBar(
                     title = {
                         Text("Stockin")
-                    }
+                    },
                 )
             },
             floatingActionButton = {
@@ -96,8 +96,8 @@ class MainActivity : ComponentActivity() {
     fun Item(item: Item) {
         Row(
             modifier = Modifier
-                .clickable { ShareUrl(item) }
-                .fillMaxWidth()
+                .clickable { shareUrl(item) }
+                .fillMaxWidth(),
         ) {
             Text(
                 text = item.title,
@@ -105,21 +105,20 @@ class MainActivity : ComponentActivity() {
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(3.dp)
-                    .padding(10.dp)
+                    .padding(12.dp),
             )
             Box() {
                 val expanded = remember { mutableStateOf(false) }
 
                 IconButton(
-                    onClick = { expanded.value = true }
+                    onClick = { expanded.value = true },
                 ) {
                     Icon(Icons.Rounded.MoreVert, contentDescription = "")
                 }
                 DropdownMenu(
                     expanded = expanded.value,
                     onDismissRequest = { expanded.value = false },
-                    offset = DpOffset(8.dp, 0.dp)
+                    offset = DpOffset(8.dp, 0.dp),
                 ) {
                     DropdownMenuItem(onClick = { }) {
                         Text("Archive")
@@ -135,7 +134,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun ShareUrl(item: Item) {
+    fun shareUrl(item: Item) {
         val intent = Intent().apply {
             action = Intent.ACTION_VIEW
             data = Uri.parse(item.url)
