@@ -47,10 +47,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        val openDialog = remember { mutableStateOf(false) }
-        val titleField = remember { mutableStateOf("")}
-        val urlField = remember { mutableStateOf("")}
-
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -61,7 +57,6 @@ class MainActivity : ComponentActivity() {
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = {
-                    openDialog.value = true
                 }) {
                     Icon(Icons.Rounded.Add, contentDescription = "")
                 }
@@ -69,63 +64,6 @@ class MainActivity : ComponentActivity() {
         ) {
             ItemList()
         }
-
-        if (openDialog.value) {
-            AlertDialog(
-                onDismissRequest = {
-                    clear(openDialog, titleField, urlField)
-                },
-                title = {
-                    Text(
-                        text = "Input",
-                        modifier = Modifier.padding(bottom = 15.dp)
-                    )
-                },
-                text = {
-                    Column {
-                        TextField(
-                            label = { Text("title") },
-                            value = titleField.value,
-                            singleLine = true,
-                            onValueChange = {
-                                titleField.value = it
-                            },
-                            modifier = Modifier
-                                .padding(bottom = 15.dp)
-                        )
-                        TextField(
-                            label = { Text("url") },
-                            value = urlField.value,
-                            singleLine = true,
-                            onValueChange = {
-                                urlField.value = it
-                            }
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        model.create(titleField.value, urlField.value)
-                        clear(openDialog, titleField, urlField)
-                    }) {
-                        Text("Add")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        clear(openDialog, titleField, urlField)
-                    }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-    }
-
-    fun clear(open: MutableState<Boolean>, title: MutableState<String>, url: MutableState<String>) {
-        open.value = false
-        title.value = ""
-        url.value = ""
     }
 
     @Composable
@@ -180,10 +118,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    fun ShowToast(message: String) {
-        Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
     }
 
     fun ShareUrl(item: Item) {
