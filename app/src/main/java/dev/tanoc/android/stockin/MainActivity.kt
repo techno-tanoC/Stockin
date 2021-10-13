@@ -22,6 +22,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -117,7 +118,8 @@ class MainActivity : ComponentActivity() {
                 }
                 DropdownMenu(
                     expanded = expanded.value,
-                    onDismissRequest = { expanded.value = false }
+                    onDismissRequest = { expanded.value = false },
+                    offset = DpOffset(8.dp, 0.dp)
                 ) {
                     DropdownMenuItem(onClick = { }) {
                         Text("Archive")
