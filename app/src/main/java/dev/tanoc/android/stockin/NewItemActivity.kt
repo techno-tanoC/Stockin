@@ -6,11 +6,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Observer
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import dev.tanoc.android.stockin.viewmodel.NewItemViewModel
@@ -29,6 +35,19 @@ class NewItemActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         StockinTheme {
+            Container()
+        }
+    }
+
+    @Composable
+    fun Container() {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("New Item") },
+                )
+            },
+        ) {
             NewItemForm()
         }
     }
@@ -47,25 +66,36 @@ class NewItemActivity : ComponentActivity() {
             finish()
         })
 
-        Column {
-            TextField(
+        Column(
+            Modifier
+                .padding(8.dp),
+        ) {
+            OutlinedTextField(
                 value = title.value,
-                onValueChange = {
-                    title.value = it
-                },
-                label = { Text("title") }
+                onValueChange = { title.value = it },
+                label = { Text("Title") },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(),
             )
-            TextField(
+            OutlinedTextField(
                 value = url.value,
-                onValueChange = {
-                    url.value = it
-                },
-                label = { Text("url") }
+                onValueChange = { url.value = it },
+                label = { Text("Url") },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(),
             )
-            Button(onClick = {
-                model.create(title.value, url.value)
-            }) {
-                Text("submit")
+            Button(
+                onClick = { model.create(title.value, url.value) },
+                modifier = Modifier
+                    .padding(4.dp, 8.dp)
+                    .fillMaxWidth(),
+            ) {
+                Text(
+                    text = "Submit",
+                    modifier = Modifier.padding(12.dp),
+                )
             }
         }
     }
