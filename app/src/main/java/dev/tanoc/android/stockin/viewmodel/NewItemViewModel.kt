@@ -14,12 +14,28 @@ class NewItemViewModel : ViewModel() {
     private val _item = MutableLiveData<Item>()
     val item = _item as LiveData<Item>
 
-    fun create(title: String, url: String) {
+    private val _title = MutableLiveData("")
+    val title = _title as LiveData<String>
+
+    private val _url = MutableLiveData("")
+    val url = _url as LiveData<String>
+
+    fun create() {
         viewModelScope.launch {
-            val item = itemRepository.create(title, url)
+            val item = itemRepository.create(title.value!!, url.value!!)
             if (item != null) {
                 _item.postValue(item!!)
             }
         }
+    }
+
+    fun updateTitle(title: String) {
+        _title.value = title
+        _title.postValue(_title.value)
+    }
+
+    fun updateUrl(url: String) {
+        _url.value = url
+        _url.postValue(_url.value)
     }
 }
