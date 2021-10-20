@@ -24,7 +24,7 @@ class NewItemViewModel : ViewModel() {
         viewModelScope.launch {
             val item = itemRepository.create(title.value!!, url.value!!)
             if (item != null) {
-                _item.postValue(item!!)
+                _item.postValue(item)
             }
         }
     }

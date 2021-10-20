@@ -16,7 +16,7 @@ interface IItemRepository {
     suspend fun delete(id: Int)
 }
 
-class ItemRepository(val baseUrl: String, val token: String) : IItemRepository {
+class ItemRepository(private val baseUrl: String, private val token: String) : IItemRepository {
     data class NewItem(
         val title: String,
         val url: String,
