@@ -3,7 +3,6 @@ package dev.tanoc.android.stockin
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -84,7 +83,7 @@ class MainActivity : ComponentActivity() {
     fun ItemList() {
         val items by model.items.observeAsState(listOf())
 
-        LazyColumn() {
+        LazyColumn {
             items(items) { item ->
                 Item(item)
                 Divider()
@@ -107,7 +106,7 @@ class MainActivity : ComponentActivity() {
                     .weight(1f)
                     .padding(12.dp),
             )
-            Box() {
+            Box {
                 val expanded = remember { mutableStateOf(false) }
 
                 IconButton(
@@ -137,7 +136,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun shareUrl(item: Item) {
+    private fun shareUrl(item: Item) {
         val intent = Intent().apply {
             action = Intent.ACTION_VIEW
             data = Uri.parse(item.url)
