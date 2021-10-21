@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
@@ -39,6 +40,16 @@ class MainActivity : ComponentActivity() {
         model.load()
     }
 
+    private fun prepend(result: ActivityResult) {
+        val id = result.data?.getIntExtra("id", 0)
+        val title = result.data?.getStringExtra("title")
+        val url = result.data?.getStringExtra("url")
+
+        if (id != null && title != null && url != null) {
+            model.prepend(id, title, url)
+        }
+    }
+
     @Preview(showBackground = true)
     @Composable
     fun App() {
@@ -50,13 +61,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Container() {
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val id = it.data?.getIntExtra("id", 0)
-            val title = it.data?.getStringExtra("title")
-            val url = it.data?.getStringExtra("url")
-
-            if (id != null && title != null && url != null) {
-                model.prepend(id, title, url)
-            }
+            prepend(it)
         }
 
         Scaffold(
@@ -83,19 +88,30 @@ class MainActivity : ComponentActivity() {
     fun ItemList() {
         val items by model.items.observeAsState(listOf())
 
+        val onClick = { item: Item ->
+            shareUrl(item)
+        }
+        val onArchiveClick = { item: Item ->
+        }
+        val onEditClick = { item: Item ->
+        }
+        val onDeleteClick = { item: Item ->
+            model.remove(item.id)
+        }
+
         LazyColumn {
             items(items) { item ->
-                Item(item)
+                Item(item, onClick, onArchiveClick, onEditClick, onDeleteClick)
                 Divider()
             }
         }
     }
 
     @Composable
-    fun Item(item: Item) {
+    fun Item(item: Item, onClick: (Item) -> Unit, onArchiveClick: (Item) -> Unit, onEditClick: (Item) -> Unit, onDeleteClick: (Item) -> Unit) {
         Row(
             modifier = Modifier
-                .clickable { shareUrl(item) }
+                .clickable { onClick(item) }
                 .fillMaxWidth(),
         ) {
             Text(
@@ -119,14 +135,20 @@ class MainActivity : ComponentActivity() {
                     onDismissRequest = { expanded.value = false },
                     offset = DpOffset(8.dp, 0.dp),
                 ) {
-                    DropdownMenuItem(onClick = { }) {
+                    DropdownMenuItem(onClick = {
+                        onArchiveClick(item)
+                        expanded.value = false
+                    }) {
                         Text("Archive")
                     }
-                    DropdownMenuItem(onClick = { }) {
+                    DropdownMenuItem(onClick = {
+                        onEditClick(item)
+                        expanded.value = false
+                    }) {
                         Text("Edit")
                     }
                     DropdownMenuItem(onClick = {
-                        model.remove(item.id)
+                        onDeleteClick(item)
                         expanded.value = false
                     }) {
                         Text("Delete")

@@ -45,22 +45,6 @@ class NewItemActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("New Item") },
-                )
-            },
-        ) {
-            NewItemForm()
-        }
-    }
-
-    @Composable
-    fun NewItemForm() {
-        val title = model.title.observeAsState("")
-        val url = model.url.observeAsState("")
-
         val item = model.item.observeAsState()
         item.value?.let {
             val intent = Intent()
@@ -73,6 +57,32 @@ class NewItemActivity : ComponentActivity() {
             finish()
         }
 
+        val onTitleChanged = { title: String ->
+            model.updateTitle(title)
+        }
+        val onUrlChanged = { url: String ->
+            model.updateUrl(url)
+        }
+        val onSubmit = {
+            model.create()
+        }
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("New Item") },
+                )
+            },
+        ) {
+            ItemForm(onTitleChanged, onUrlChanged, onSubmit)
+        }
+    }
+
+    @Composable
+    fun ItemForm(onTitleChanged: (String) -> Unit, onUrlChanged: (String) -> Unit, onSubmit: () -> Unit) {
+        val title = model.title.observeAsState("")
+        val url = model.url.observeAsState("")
+
         Column(
             Modifier
                 .fillMaxSize()
@@ -81,7 +91,7 @@ class NewItemActivity : ComponentActivity() {
         ) {
             OutlinedTextField(
                 value = title.value,
-                onValueChange = { model.updateTitle(it) },
+                onValueChange = onTitleChanged,
                 label = { Text("Title") },
                 modifier = Modifier
                     .padding(4.dp)
@@ -89,14 +99,14 @@ class NewItemActivity : ComponentActivity() {
             )
             OutlinedTextField(
                 value = url.value,
-                onValueChange = { model.updateUrl(it) },
+                onValueChange = onUrlChanged,
                 label = { Text("Url") },
                 modifier = Modifier
                     .padding(4.dp)
                     .fillMaxWidth(),
             )
             Button(
-                onClick = { model.create() },
+                onClick = onSubmit,
                 modifier = Modifier
                     .padding(4.dp, 8.dp)
                     .fillMaxWidth(),
