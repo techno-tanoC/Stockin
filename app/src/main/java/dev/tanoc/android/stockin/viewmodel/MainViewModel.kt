@@ -29,9 +29,10 @@ class MainViewModel : ViewModel() {
 
     fun patch(id: Int, title: String, url: String) {
         val list = _items.value!!.toMutableList()
-        list.find { it.id == id }?.let {
-            it.title = title
-            it.url = url
+        list.forEachIndexed { index, item ->
+            if (item.id == id) {
+                list[index] = Item(id, title, url)
+            }
         }
         _items.value = list.toList()
     }
