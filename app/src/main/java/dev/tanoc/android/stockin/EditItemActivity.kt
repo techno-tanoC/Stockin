@@ -12,22 +12,28 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.tooling.preview.Preview
 import dev.tanoc.android.stockin.composable.ItemForm
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
-import dev.tanoc.android.stockin.viewmodel.NewItemViewModel
+import dev.tanoc.android.stockin.viewmodel.EditItemViewModel
 
-class NewItemActivity : ComponentActivity() {
-    private val model: NewItemViewModel by viewModels()
+class EditItemActivity : ComponentActivity() {
+    private val model: EditItemViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (intent?.action == Intent.ACTION_SEND) {
-            intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-                model.updateUrl(it)
-            }
+        intent.getIntExtra("id", 0).let {
+            model.updateId(it)
+        }
+        intent.getStringExtra("title")?.let {
+            model.updateTitle(it)
+        }
+        intent.getStringExtra("url")?.let {
+            model.updateUrl(it)
         }
 
         setContent {
-            DefaultPreview()
+            StockinTheme {
+                DefaultPreview()
+            }
         }
     }
 
@@ -49,7 +55,7 @@ class NewItemActivity : ComponentActivity() {
             intent.putExtra("url", it.url)
             setResult(RESULT_OK, intent)
 
-            Toast.makeText(this, "The item is created.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "The item is updated.", Toast.LENGTH_SHORT).show()
             finish()
         }
 
@@ -63,17 +69,18 @@ class NewItemActivity : ComponentActivity() {
             model.updateUrl(url)
         }
         val onSubmit = {
-            model.create()
+            model.submit()
         }
 
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("New Item") },
+                    title = { Text("Edit Item") },
                 )
             },
         ) {
             ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onSubmit)
         }
     }
+
 }

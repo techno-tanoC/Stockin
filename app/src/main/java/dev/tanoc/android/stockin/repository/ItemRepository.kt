@@ -13,26 +13,11 @@ data class Data<T>(
 interface IItemRepository {
     suspend fun index(): List<Item>?
     suspend fun create(title: String, url: String): Item?
+    suspend fun update(id: Int, title: String, url: String): Item?
     suspend fun delete(id: Int)
 }
 
 class ItemRepository(private val baseUrl: String, private val token: String) : IItemRepository {
-    data class NewItem(
-        val title: String,
-        val url: String,
-    )
-
-    interface Api {
-        @GET("/items")
-        suspend fun index(@Header("Authorization") token: String): Response<Data<List<Item>>>
-
-        @POST("/items")
-        suspend fun create(@Header("Authorization") token: String, @Body newItem: NewItem): Response<Data<Item>>
-
-        @DELETE("/items/{id}")
-        suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Int)
-    }
-
     private val service by lazy {
         Retrofit
             .Builder()
@@ -42,12 +27,35 @@ class ItemRepository(private val baseUrl: String, private val token: String) : I
             .create(Api::class.java)
     }
 
+    data class Params(
+        val title: String,
+        val url: String,
+    )
+
+    interface Api {
+        @GET("/items")
+        suspend fun index(@Header("Authorization") token: String): Response<Data<List<Item>>>
+
+        @POST("/items")
+        suspend fun create(@Header("Authorization") token: String, @Body params: Params): Response<Data<Item>>
+
+        @PUT("/items/{id}")
+        suspend fun update(@Header("Authorization") token: String, @Path("id") id: Int, @Body params: Params): Response<Data<Item>>
+
+        @DELETE("/items/{id}")
+        suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Int)
+    }
+
     override suspend fun index(): List<Item>? {
         return service.index(this.token).body()?.data
     }
 
     override suspend fun create(title: String, url: String): Item? {
-        return service.create(this.token, NewItem(title, url)).body()?.data
+        return service.create(this.token, Params(title, url)).body()?.data
+    }
+
+    override suspend fun update(id: Int, title: String, url: String): Item? {
+        return service.update(this.token, id, Params(title, url)).body()?.data
     }
 
     override suspend fun delete(id: Int) {
