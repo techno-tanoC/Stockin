@@ -91,6 +91,10 @@ class MockItemRepository : IItemRepository {
         return item
     }
 
+    override suspend fun update(id: Int, title: String, url: String): Item? {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun delete(id: Int) {
         TODO("Not yet implemented")
     }
