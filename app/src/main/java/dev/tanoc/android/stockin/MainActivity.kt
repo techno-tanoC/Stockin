@@ -50,6 +50,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun patch(result: ActivityResult) {
+        val id = result.data?.getIntExtra("id", 0)
+        val title = result.data?.getStringExtra("title")
+        val url = result.data?.getStringExtra("url")
+
+        if (id != null && title != null && url != null) {
+            model.patch(id, title, url)
+        }
+    }
+
+    private fun shareUrl(item: Item) {
+        val intent = Intent().apply {
+            action = Intent.ACTION_VIEW
+            data = Uri.parse(item.url)
+        }
+        startActivity(intent)
+    }
+
     @Preview(showBackground = true)
     @Composable
     fun App() {
@@ -60,7 +78,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             prepend(it)
         }
 
@@ -74,7 +92,7 @@ class MainActivity : ComponentActivity() {
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = {
-                    launcher.launch(Intent(this, NewItemActivity::class.java))
+                    newLauncher.launch(Intent(this@MainActivity, NewItemActivity::class.java))
                 }) {
                     Icon(Icons.Rounded.Add, contentDescription = "")
                 }
@@ -87,6 +105,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ItemList() {
         val items by model.items.observeAsState(listOf())
+        val editLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            patch(it)
+        }
 
         val onClick = { item: Item ->
             shareUrl(item)
@@ -94,6 +115,12 @@ class MainActivity : ComponentActivity() {
         val onArchiveClick = { item: Item ->
         }
         val onEditClick = { item: Item ->
+            val intent = Intent(this@MainActivity, EditItemActivity::class.java).apply {
+                putExtra("id", item.id)
+                putExtra("title", item.title)
+                putExtra("url", item.url)
+            }
+            editLauncher.launch(intent)
         }
         val onDeleteClick = { item: Item ->
             model.remove(item.id)
@@ -156,13 +183,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun shareUrl(item: Item) {
-        val intent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            data = Uri.parse(item.url)
-        }
-        startActivity(intent)
     }
 }

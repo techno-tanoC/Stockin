@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Stockin</string>
     <string name="title_activity_new_item">NewItemActivity</string>
+    <string name="title_activity_edit_item">EditItemActivity</string>
 </resources>
