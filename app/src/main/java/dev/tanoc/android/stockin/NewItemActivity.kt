@@ -6,15 +6,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import dev.tanoc.android.stockin.composable.ItemForm
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import dev.tanoc.android.stockin.viewmodel.NewItemViewModel
 
@@ -57,6 +53,9 @@ class NewItemActivity : ComponentActivity() {
             finish()
         }
 
+        val title = model.title.observeAsState("")
+        val url = model.url.observeAsState("")
+
         val onTitleChanged = { title: String ->
             model.updateTitle(title)
         }
@@ -74,48 +73,7 @@ class NewItemActivity : ComponentActivity() {
                 )
             },
         ) {
-            ItemForm(onTitleChanged, onUrlChanged, onSubmit)
-        }
-    }
-
-    @Composable
-    fun ItemForm(onTitleChanged: (String) -> Unit, onUrlChanged: (String) -> Unit, onSubmit: () -> Unit) {
-        val title = model.title.observeAsState("")
-        val url = model.url.observeAsState("")
-
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(8.dp),
-        ) {
-            OutlinedTextField(
-                value = title.value,
-                onValueChange = onTitleChanged,
-                label = { Text("Title") },
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = url.value,
-                onValueChange = onUrlChanged,
-                label = { Text("Url") },
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth(),
-            )
-            Button(
-                onClick = onSubmit,
-                modifier = Modifier
-                    .padding(4.dp, 8.dp)
-                    .fillMaxWidth(),
-            ) {
-                Text(
-                    text = "Submit",
-                    modifier = Modifier.padding(12.dp),
-                )
-            }
+            ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onSubmit)
         }
     }
 }
