@@ -62,11 +62,11 @@ class EditItemActivity : ComponentActivity() {
         val title = model.title.observeAsState("")
         val url = model.url.observeAsState("")
 
-        val onTitleChanged = { title: String ->
-            model.updateTitle(title)
+        val onTitleChanged = { input: String ->
+            model.updateTitle(input)
         }
-        val onUrlChanged = { url: String ->
-            model.updateUrl(url)
+        val onUrlChanged = { input: String ->
+            model.updateUrl(input)
         }
         val onSubmit = {
             model.submit()
