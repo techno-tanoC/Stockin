@@ -13,7 +13,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -29,6 +31,8 @@ import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import dev.tanoc.android.stockin.viewmodel.MainViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collect
 
 class MainActivity : ComponentActivity() {
     private val model: MainViewModel by viewModels()
@@ -38,8 +42,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             App()
         }
-
-        model.load()
     }
 
     private fun prepend(result: ActivityResult) {
@@ -83,6 +85,7 @@ class MainActivity : ComponentActivity() {
         val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             prepend(it)
         }
+        val isLoading by model.isLoading.observeAsState(false)
 
         model.message.observe(this, EventObserver {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
@@ -104,13 +107,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         ) {
+            if (isLoading) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             ItemList()
         }
     }
 
     @Composable
     fun ItemList() {
-        val items by model.items.observeAsState(listOf())
         val editLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             patch(it)
         }
@@ -132,11 +140,40 @@ class MainActivity : ComponentActivity() {
             model.remove(item.id)
         }
 
-        LazyColumn {
+        val listState = rememberLazyListState()
+        ListHandler(listState, buffer = 25) {
+            model.loadMore()
+        }
+
+        val items by model.items.observeAsState(listOf())
+        LazyColumn(
+            state = listState,
+        ) {
             items(items) { item ->
                 Item(item, onClick, onArchiveClick, onEditClick, onDeleteClick)
                 Divider()
             }
+        }
+    }
+
+    @Composable
+    fun ListHandler(state: LazyListState, buffer: Int, onLoadMore: () -> Unit) {
+        val loadMore = remember {
+            derivedStateOf {
+                val layoutInfo = state.layoutInfo
+                val totalCount = layoutInfo.totalItemsCount
+                val lastVisibleIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
+                lastVisibleIndex > (totalCount - buffer)
+            }
+        }
+        LaunchedEffect(loadMore) {
+            snapshotFlow { loadMore.value }
+                .distinctUntilChanged()
+                .collect {
+                    if (loadMore.value) {
+                        onLoadMore()
+                    }
+                }
         }
     }
 

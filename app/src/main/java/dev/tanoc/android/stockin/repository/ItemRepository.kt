@@ -11,7 +11,7 @@ data class Data<T>(
 )
 
 interface IItemRepository {
-    suspend fun index(): List<Item>?
+    suspend fun index(before: Long): List<Item>?
     suspend fun create(title: String, url: String): Item?
     suspend fun update(id: Long, title: String, url: String): Item?
     suspend fun delete(id: Long)
@@ -34,7 +34,7 @@ class ItemRepository(private val baseUrl: String, private val token: String) : I
 
     interface Api {
         @GET("/items")
-        suspend fun index(@Header("Authorization") token: String): Response<Data<List<Item>>>
+        suspend fun index(@Header("Authorization") token: String, @Query("before") before: Long): Response<Data<List<Item>>>
 
         @POST("/items")
         suspend fun create(@Header("Authorization") token: String, @Body params: Params): Response<Data<Item>>
@@ -46,8 +46,8 @@ class ItemRepository(private val baseUrl: String, private val token: String) : I
         suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Long)
     }
 
-    override suspend fun index(): List<Item>? {
-        return service.index(this.token).body()?.data
+    override suspend fun index(before: Long): List<Item>? {
+        return service.index(this.token, before).body()?.data
     }
 
     override suspend fun create(title: String, url: String): Item? {
