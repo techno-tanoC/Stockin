@@ -86,16 +86,16 @@ class MockItemRepository : IItemRepository {
     }
 
     override suspend fun create(title: String, url: String): Item {
-        val item = Item(items.size + 1, title, url)
+        val item = Item(items.size.toLong() + 1, title, url)
         items.add(item)
         return item
     }
 
-    override suspend fun update(id: Int, title: String, url: String): Item? {
+    override suspend fun update(id: Long, title: String, url: String): Item? {
         TODO("Not yet implemented")
     }
 
-    override suspend fun delete(id: Int) {
+    override suspend fun delete(id: Long) {
         TODO("Not yet implemented")
     }
 }

@@ -13,8 +13,8 @@ data class Data<T>(
 interface IItemRepository {
     suspend fun index(): List<Item>?
     suspend fun create(title: String, url: String): Item?
-    suspend fun update(id: Int, title: String, url: String): Item?
-    suspend fun delete(id: Int)
+    suspend fun update(id: Long, title: String, url: String): Item?
+    suspend fun delete(id: Long)
 }
 
 class ItemRepository(private val baseUrl: String, private val token: String) : IItemRepository {
@@ -40,10 +40,10 @@ class ItemRepository(private val baseUrl: String, private val token: String) : I
         suspend fun create(@Header("Authorization") token: String, @Body params: Params): Response<Data<Item>>
 
         @PUT("/items/{id}")
-        suspend fun update(@Header("Authorization") token: String, @Path("id") id: Int, @Body params: Params): Response<Data<Item>>
+        suspend fun update(@Header("Authorization") token: String, @Path("id") id: Long, @Body params: Params): Response<Data<Item>>
 
         @DELETE("/items/{id}")
-        suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Int)
+        suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Long)
     }
 
     override suspend fun index(): List<Item>? {
@@ -54,11 +54,11 @@ class ItemRepository(private val baseUrl: String, private val token: String) : I
         return service.create(this.token, Params(title, url)).body()?.data
     }
 
-    override suspend fun update(id: Int, title: String, url: String): Item? {
+    override suspend fun update(id: Long, title: String, url: String): Item? {
         return service.update(this.token, id, Params(title, url)).body()?.data
     }
 
-    override suspend fun delete(id: Int) {
+    override suspend fun delete(id: Long) {
         service.delete(this.token, id)
     }
 }
