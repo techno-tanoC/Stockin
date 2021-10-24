@@ -20,7 +20,7 @@ class EditItemActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent.getIntExtra("id", 0).let {
+        intent.getLongExtra("id", 0).let {
             model.updateId(it)
         }
         intent.getStringExtra("title")?.let {

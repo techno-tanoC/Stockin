@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun prepend(result: ActivityResult) {
-        val id = result.data?.getIntExtra("id", 0)
+        val id = result.data?.getLongExtra("id", 0)
         val title = result.data?.getStringExtra("title")
         val url = result.data?.getStringExtra("url")
 
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun patch(result: ActivityResult) {
-        val id = result.data?.getIntExtra("id", 0)
+        val id = result.data?.getLongExtra("id", 0)
         val title = result.data?.getStringExtra("title")
         val url = result.data?.getStringExtra("url")
 

@@ -14,8 +14,8 @@ class EditItemViewModel: ViewModel() {
     private val _item = MutableLiveData<Item>()
     val item = _item as LiveData<Item>
 
-    private val _id = MutableLiveData<Int>()
-    val id = _id as LiveData<Int>
+    private val _id = MutableLiveData<Long>()
+    val id = _id as LiveData<Long>
 
     private val _title = MutableLiveData("")
     val title = _title as LiveData<String>
@@ -32,7 +32,7 @@ class EditItemViewModel: ViewModel() {
         }
     }
 
-    fun updateId(id: Int) {
+    fun updateId(id: Long) {
         _id.value = id
         _id.postValue(_id.value)
     }

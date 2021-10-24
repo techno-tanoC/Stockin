@@ -20,14 +20,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun prepend(id: Int, title: String, url: String) {
+    fun prepend(id: Long, title: String, url: String) {
         val item = Item(id, title, url)
         val list = _items.value!!.toMutableList()
         list.add(0, item)
         _items.value = list.toList()
     }
 
-    fun patch(id: Int, title: String, url: String) {
+    fun patch(id: Long, title: String, url: String) {
         val list = _items.value!!.toMutableList()
         list.forEachIndexed { index, item ->
             if (item.id == id) {
@@ -37,7 +37,7 @@ class MainViewModel : ViewModel() {
         _items.value = list.toList()
     }
 
-    fun remove(id: Int) {
+    fun remove(id: Long) {
         viewModelScope.launch {
             itemRepository.delete(id)
 
