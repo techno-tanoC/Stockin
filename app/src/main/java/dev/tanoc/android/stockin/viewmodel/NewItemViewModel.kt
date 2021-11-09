@@ -20,7 +20,7 @@ class NewItemViewModel : ViewModel() {
     private val _url = MutableLiveData("")
     val url = _url as LiveData<String>
 
-    fun create() {
+    fun submit() {
         viewModelScope.launch {
             val item = itemRepository.create(title.value!!, url.value!!)
             if (item != null) {

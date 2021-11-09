@@ -63,7 +63,7 @@ class NewItemActivity : ComponentActivity() {
             model.updateUrl(url)
         }
         val onSubmit = {
-            model.create()
+            model.submit()
         }
 
         Scaffold(
