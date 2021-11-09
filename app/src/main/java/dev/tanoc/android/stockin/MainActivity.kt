@@ -3,6 +3,7 @@ package dev.tanoc.android.stockin
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import dev.tanoc.android.stockin.viewmodel.MainViewModel
@@ -81,6 +83,10 @@ class MainActivity : ComponentActivity() {
         val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             prepend(it)
         }
+
+        model.message.observe(this, EventObserver {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+        })
 
         Scaffold(
             topBar = {

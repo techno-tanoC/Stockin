@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.tooling.preview.Preview
 import dev.tanoc.android.stockin.composable.ItemForm
+import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import dev.tanoc.android.stockin.viewmodel.EditItemViewModel
 
@@ -47,6 +48,10 @@ class EditItemActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
+        model.message.observe(this, EventObserver {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+        })
+
         val item = model.item.observeAsState()
         item.value?.let {
             val intent = Intent()
