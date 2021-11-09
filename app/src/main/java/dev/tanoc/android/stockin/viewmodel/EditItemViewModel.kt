@@ -1,9 +1,11 @@
 package dev.tanoc.android.stockin.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.tanoc.android.stockin.model.Event
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.repository.ItemRepository
 import kotlinx.coroutines.launch
@@ -23,11 +25,19 @@ class EditItemViewModel: ViewModel() {
     private val _url = MutableLiveData("")
     val url = _url as LiveData<String>
 
+    private val _message = MutableLiveData<Event<String>>()
+    val message = _message as LiveData<Event<String>>
+
     fun submit() {
         viewModelScope.launch {
-            val item = itemRepository.update(id.value!!, title.value!!, url.value!!)
-            if (item != null) {
-                _item.postValue(item)
+            try {
+                val item = itemRepository.update(id.value!!, title.value!!, url.value!!)
+                if (item != null) {
+                    _item.postValue(item)
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin", "EditItemViewModel update: $e")
+                _message.value = Event("Failed to update data")
             }
         }
     }
