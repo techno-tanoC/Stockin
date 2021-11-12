@@ -19,22 +19,18 @@ import dev.tanoc.android.stockin.viewmodel.EditItemViewModel
 
 class EditItemActivity : ComponentActivity() {
     private val model: EditItemViewModel by viewModels()
-    private var initId = 0L
-    private var initTitle = ""
-    private var initUrl = ""
+    private val initId: Long by lazy {
+        intent.getLongExtra("id", 0)
+    }
+    private val initTitle: String by lazy {
+        intent.getStringExtra("title") ?: ""
+    }
+    private val initUrl: String by lazy {
+        intent.getStringExtra("url") ?: ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        intent.getLongExtra("id", 0).let {
-            initId = it
-        }
-        intent.getStringExtra("title")?.let {
-            initTitle = it
-        }
-        intent.getStringExtra("url")?.let {
-            initUrl = it
-        }
 
         setContent {
             StockinTheme {

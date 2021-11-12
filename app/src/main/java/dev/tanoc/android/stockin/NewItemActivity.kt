@@ -19,16 +19,16 @@ import dev.tanoc.android.stockin.viewmodel.NewItemViewModel
 
 class NewItemActivity : ComponentActivity() {
     private val model: NewItemViewModel by viewModels()
-    private var initUrl = ""
+    private val initUrl by lazy {
+        if (intent?.action == Intent.ACTION_SEND) {
+            intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
+        } else {
+            ""
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (intent?.action == Intent.ACTION_SEND) {
-            intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-                initUrl = it
-            }
-        }
 
         setContent {
             DefaultPreview()
