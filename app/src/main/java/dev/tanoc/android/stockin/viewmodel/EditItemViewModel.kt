@@ -16,44 +16,19 @@ class EditItemViewModel: ViewModel() {
     private val _item = MutableLiveData<Item>()
     val item = _item as LiveData<Item>
 
-    private val _id = MutableLiveData<Long>()
-    val id = _id as LiveData<Long>
-
-    private val _title = MutableLiveData("")
-    val title = _title as LiveData<String>
-
-    private val _url = MutableLiveData("")
-    val url = _url as LiveData<String>
-
     private val _message = MutableLiveData<Event<String>>()
     val message = _message as LiveData<Event<String>>
 
-    fun submit() {
+    fun submit(id: Long, title: String, url: String) {
         viewModelScope.launch {
             try {
-                val item = itemRepository.update(id.value!!, title.value!!, url.value!!)
-                if (item != null) {
-                    _item.postValue(item)
+                itemRepository.update(id, title, url)?.let {
+                    _item.postValue(it)
                 }
             } catch (e: Exception) {
                 Log.e("Stockin", "EditItemViewModel update: $e")
                 _message.value = Event("Failed to update data")
             }
         }
-    }
-
-    fun updateId(id: Long) {
-        _id.value = id
-        _id.postValue(_id.value)
-    }
-
-    fun updateTitle(title: String) {
-        _title.value = title
-        _title.postValue(_title.value)
-    }
-
-    fun updateUrl(url: String) {
-        _url.value = url
-        _url.postValue(_url.value)
     }
 }

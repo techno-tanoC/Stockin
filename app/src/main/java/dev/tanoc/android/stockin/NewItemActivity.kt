@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import dev.tanoc.android.stockin.composable.ItemForm
 import dev.tanoc.android.stockin.model.EventObserver
@@ -17,15 +19,16 @@ import dev.tanoc.android.stockin.viewmodel.NewItemViewModel
 
 class NewItemActivity : ComponentActivity() {
     private val model: NewItemViewModel by viewModels()
+    private val initUrl by lazy {
+        if (intent?.action == Intent.ACTION_SEND) {
+            intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
+        } else {
+            ""
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (intent?.action == Intent.ACTION_SEND) {
-            intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-                model.updateUrl(it)
-            }
-        }
 
         setContent {
             DefaultPreview()
@@ -58,17 +61,17 @@ class NewItemActivity : ComponentActivity() {
             finish()
         }
 
-        val title = model.title.observeAsState("")
-        val url = model.url.observeAsState("")
+        val title = remember { mutableStateOf("") }
+        val url = remember { mutableStateOf(initUrl) }
 
-        val onTitleChanged = { title: String ->
-            model.updateTitle(title)
+        val onTitleChanged = { input: String ->
+            title.value = input
         }
-        val onUrlChanged = { url: String ->
-            model.updateUrl(url)
+        val onUrlChanged = { input: String ->
+            url.value = input
         }
         val onSubmit = {
-            model.submit()
+            model.submit(title.value, url.value)
         }
 
         Scaffold(

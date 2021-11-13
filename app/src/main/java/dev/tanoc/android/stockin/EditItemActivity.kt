@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import dev.tanoc.android.stockin.composable.ItemForm
 import dev.tanoc.android.stockin.model.EventObserver
@@ -17,19 +19,18 @@ import dev.tanoc.android.stockin.viewmodel.EditItemViewModel
 
 class EditItemActivity : ComponentActivity() {
     private val model: EditItemViewModel by viewModels()
+    private val initId: Long by lazy {
+        intent.getLongExtra("id", 0)
+    }
+    private val initTitle: String by lazy {
+        intent.getStringExtra("title") ?: ""
+    }
+    private val initUrl: String by lazy {
+        intent.getStringExtra("url") ?: ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        intent.getLongExtra("id", 0).let {
-            model.updateId(it)
-        }
-        intent.getStringExtra("title")?.let {
-            model.updateTitle(it)
-        }
-        intent.getStringExtra("url")?.let {
-            model.updateUrl(it)
-        }
 
         setContent {
             StockinTheme {
@@ -64,17 +65,17 @@ class EditItemActivity : ComponentActivity() {
             finish()
         }
 
-        val title = model.title.observeAsState("")
-        val url = model.url.observeAsState("")
+        val title = remember { mutableStateOf(initTitle) }
+        val url = remember { mutableStateOf(initUrl) }
 
         val onTitleChanged = { input: String ->
-            model.updateTitle(input)
+            title.value = input
         }
         val onUrlChanged = { input: String ->
-            model.updateUrl(input)
+            url.value = input
         }
         val onSubmit = {
-            model.submit()
+            model.submit(initId, title.value, url.value)
         }
 
         Scaffold(
