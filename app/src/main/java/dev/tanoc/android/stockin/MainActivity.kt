@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -107,13 +109,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         ) {
-            if (isLoading) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isLoading),
+                onRefresh = { model.reload() },
+            ) {
+                ItemList()
             }
-
-            ItemList()
         }
     }
 
