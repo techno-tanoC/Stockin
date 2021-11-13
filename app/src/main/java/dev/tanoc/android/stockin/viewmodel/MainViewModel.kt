@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
     private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
 
-    private val _isLoading = MutableLiveData<Boolean>(false)
+    private val _isLoading = MutableLiveData(false)
     val isLoading = _isLoading as LiveData<Boolean>
 
     private val _items = MutableLiveData<List<Item>>(listOf())
@@ -29,10 +29,9 @@ class MainViewModel : ViewModel() {
             viewModelScope.launch {
                 try {
                     val lastId = _items.value!!.lastOrNull()?.id ?: Long.MAX_VALUE
-                    val res = itemRepository.index(lastId)
-                    if (res != null) {
+                    itemRepository.index(lastId)?.let {
                         val list = _items.value!!.toMutableList()
-                        list.addAll(res)
+                        list.addAll(it)
                         _items.value = list.toList()
                     }
                 } catch (e: Exception) {
@@ -51,9 +50,8 @@ class MainViewModel : ViewModel() {
 
             viewModelScope.launch {
                 try {
-                    val res = itemRepository.index(Long.MAX_VALUE)
-                    if (res != null) {
-                        _items.postValue(res)
+                    itemRepository.index(Long.MAX_VALUE)?.let {
+                        _items.postValue(it)
                     }
                 } catch (e: Exception) {
                     Log.e("Stockin", "MainViewModel reload: $e")
@@ -86,9 +84,8 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 itemRepository.delete(id)
-
                 val list = _items.value!!.toMutableList()
-                list.removeIf { it.id == id }
+                list.removeAll { it.id == id }
                 _items.value = list.toList()
             } catch (e: Exception) {
                 Log.e("Stockin", "MainViewModel remove: $e")

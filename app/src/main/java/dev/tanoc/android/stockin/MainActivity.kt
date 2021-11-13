@@ -84,14 +84,15 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            prepend(it)
-        }
-        val isLoading by model.isLoading.observeAsState(false)
-
         model.message.observe(this, EventObserver {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
+
+        val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            prepend(it)
+        }
+
+        val isLoading by model.isLoading.observeAsState(false)
 
         Scaffold(
             topBar = {
@@ -127,7 +128,7 @@ class MainActivity : ComponentActivity() {
         val onClick = { item: Item ->
             shareUrl(item)
         }
-        val onArchiveClick = { item: Item ->
+        val onArchiveClick = { _: Item ->
         }
         val onEditClick = { item: Item ->
             val intent = Intent(this@MainActivity, EditItemActivity::class.java).apply {
