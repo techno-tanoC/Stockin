@@ -13,8 +13,8 @@ import kotlinx.coroutines.launch
 class NewItemViewModel : ViewModel() {
     private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
 
-    private val _item = MutableLiveData<Item>()
-    val item = _item as LiveData<Item>
+    private val _item = MutableLiveData<Event<Item>>()
+    val item = _item as LiveData<Event<Item>>
 
     private val _message = MutableLiveData<Event<String>>()
     val message = _message as LiveData<Event<String>>
@@ -23,7 +23,7 @@ class NewItemViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 itemRepository.create(title, url)?.let {
-                    _item.postValue(it)
+                    _item.value = Event(it)
                 }
             } catch (err: Exception) {
                 Log.e("Stockin", "NewItemViewModel submit: $err")

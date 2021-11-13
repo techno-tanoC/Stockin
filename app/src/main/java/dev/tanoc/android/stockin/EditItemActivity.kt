@@ -53,8 +53,7 @@ class EditItemActivity : ComponentActivity() {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
 
-        val item = model.item.observeAsState()
-        item.value?.let {
+        model.item.observe(this, EventObserver {
             val intent = Intent()
             intent.putExtra("id", it.id)
             intent.putExtra("title", it.title)
@@ -63,7 +62,7 @@ class EditItemActivity : ComponentActivity() {
 
             Toast.makeText(this, "The item is updated.", Toast.LENGTH_SHORT).show()
             finish()
-        }
+        })
 
         val title = remember { mutableStateOf(initTitle) }
         val url = remember { mutableStateOf(initUrl) }
