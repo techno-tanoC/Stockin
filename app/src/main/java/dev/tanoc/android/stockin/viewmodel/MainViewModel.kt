@@ -13,15 +13,48 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
     private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
 
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading = _isLoading as LiveData<Boolean>
+
     private val _items = MutableLiveData<List<Item>>(listOf())
     val items = _items as LiveData<List<Item>>
 
     private val _message = MutableLiveData<Event<String>>()
     val message = _message as LiveData<Event<String>>
 
-    fun load() {
-        viewModelScope.launch {
-            reload()
+    fun loadMore() {
+        if (_isLoading.value!!.not()) {
+            _isLoading.value = true
+
+            viewModelScope.launch {
+                val lastId = _items.value!!.lastOrNull()?.id ?: Long.MAX_VALUE
+                val res = itemRepository.index(lastId)
+                if (res != null) {
+                    val list = _items.value!!.toMutableList()
+                    list.addAll(res)
+                    _items.value = list.toList()
+                }
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun reload() {
+        if (_isLoading.value!!.not()) {
+            _isLoading.value = true
+
+            viewModelScope.launch {
+                try {
+                    val res = itemRepository.index(Long.MAX_VALUE)
+                    if (res != null) {
+                        _items.postValue(res)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Stockin", "MainViewModel reload: $e")
+                    _message.value = Event("Failed to fetch data")
+                }
+                _isLoading.value = false
+            }
         }
     }
 
@@ -54,18 +87,6 @@ class MainViewModel : ViewModel() {
                 Log.e("Stockin", "MainViewModel remove: $e")
                 _message.value = Event("Failed to delete data")
             }
-        }
-    }
-
-    private suspend fun reload() {
-        try {
-            val res = itemRepository.index()
-            if (res != null) {
-                    _items.postValue(res)
-            }
-        } catch (e: Exception) {
-            Log.e("Stockin", "MainViewModel reload: $e")
-            _message.value = Event("Failed to fetch data")
         }
     }
 }

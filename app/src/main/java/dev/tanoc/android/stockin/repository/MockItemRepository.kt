@@ -81,7 +81,7 @@ class MockItemRepository : IItemRepository {
         ),
     )
 
-    override suspend fun index(): List<Item> {
+    override suspend fun index(before: Long): List<Item> {
         return items.toList()
     }
 
