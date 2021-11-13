@@ -27,14 +27,20 @@ class MainViewModel : ViewModel() {
             _isLoading.value = true
 
             viewModelScope.launch {
-                val lastId = _items.value!!.lastOrNull()?.id ?: Long.MAX_VALUE
-                val res = itemRepository.index(lastId)
-                if (res != null) {
-                    val list = _items.value!!.toMutableList()
-                    list.addAll(res)
-                    _items.value = list.toList()
+                try {
+                    val lastId = _items.value!!.lastOrNull()?.id ?: Long.MAX_VALUE
+                    val res = itemRepository.index(lastId)
+                    if (res != null) {
+                        val list = _items.value!!.toMutableList()
+                        list.addAll(res)
+                        _items.value = list.toList()
+                    }
+                } catch (e: Exception) {
+                    Log.e("Stockin", "MainViewModel loadMore: $e")
+                    _message.value = Event("Failed to fetch data")
+                } finally {
+                    _isLoading.value = false
                 }
-                _isLoading.value = false
             }
         }
     }
@@ -51,9 +57,10 @@ class MainViewModel : ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e("Stockin", "MainViewModel reload: $e")
-                    _message.value = Event("Failed to fetch data")
+                    _message.value = Event("Failed to reload data")
+                } finally {
+                    _isLoading.value = false
                 }
-                _isLoading.value = false
             }
         }
     }
