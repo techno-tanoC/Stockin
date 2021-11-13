@@ -87,5 +87,4 @@ class EditItemActivity : ComponentActivity() {
             ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onSubmit)
         }
     }
-
 }

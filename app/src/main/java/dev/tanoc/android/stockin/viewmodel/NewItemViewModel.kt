@@ -25,8 +25,8 @@ class NewItemViewModel : ViewModel() {
                 itemRepository.create(title, url)?.let {
                     _item.value = Event(it)
                 }
-            } catch (err: Exception) {
-                Log.e("Stockin", "NewItemViewModel submit: $err")
+            } catch (e: Exception) {
+                Log.e("Stockin", "NewItemViewModel submit: $e")
                 _message.value = Event("Failed to create data")
             }
         }
