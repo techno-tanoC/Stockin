@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,9 +48,8 @@ class EditItemActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        model.message.observe(this, EventObserver {
-            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-        })
+        val title = remember { mutableStateOf(initTitle) }
+        val url = remember { mutableStateOf(initUrl) }
 
         model.item.observe(this, EventObserver {
             val intent = Intent()
@@ -63,12 +61,11 @@ class EditItemActivity : ComponentActivity() {
             Toast.makeText(this, "The item is updated.", Toast.LENGTH_SHORT).show()
             finish()
         })
-
-        val title = remember { mutableStateOf(initTitle) }
-        val url = remember { mutableStateOf(initUrl) }
-
         model.title.observe(this, EventObserver {
             title.value = it.title
+        })
+        model.message.observe(this, EventObserver {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
 
         val onTitleChanged = { input: String ->
