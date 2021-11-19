@@ -1,14 +1,11 @@
 package dev.tanoc.android.stockin.repository
 
+import dev.tanoc.android.stockin.model.Data
 import dev.tanoc.android.stockin.model.Item
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
-
-data class Data<T>(
-    val data: T,
-)
 
 interface IItemRepository {
     suspend fun index(before: Long): List<Item>?

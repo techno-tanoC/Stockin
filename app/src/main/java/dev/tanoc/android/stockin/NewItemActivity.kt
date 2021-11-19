@@ -63,11 +63,18 @@ class NewItemActivity : ComponentActivity() {
         val title = remember { mutableStateOf("") }
         val url = remember { mutableStateOf(initUrl) }
 
+        model.title.observe(this, EventObserver {
+            title.value = it.title
+        })
+
         val onTitleChanged = { input: String ->
             title.value = input
         }
         val onUrlChanged = { input: String ->
             url.value = input
+        }
+        val onQueryTitle = {
+            model.queryTitle(url.value)
         }
         val onSubmit = {
             model.submit(title.value, url.value)
@@ -80,7 +87,7 @@ class NewItemActivity : ComponentActivity() {
                 )
             },
         ) {
-            ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onSubmit)
+            ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onQueryTitle, onSubmit)
         }
     }
 }
