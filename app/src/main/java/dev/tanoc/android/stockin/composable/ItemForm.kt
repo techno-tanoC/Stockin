@@ -11,7 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ItemForm(title: String, url: String, onTitleChanged: (String) -> Unit, onUrlChanged: (String) -> Unit, onSubmit: () -> Unit) {
+fun ItemForm(
+    title: String,
+    url: String,
+    onTitleChanged: (String) -> Unit,
+    onUrlChanged: (String) -> Unit,
+    onQueryTitle: () -> Unit,
+    onSubmit: () -> Unit,
+) {
     Column(
         Modifier
             .fillMaxSize()
@@ -34,6 +41,17 @@ fun ItemForm(title: String, url: String, onTitleChanged: (String) -> Unit, onUrl
                 .padding(4.dp)
                 .fillMaxWidth(),
         )
+        Button(
+            onClick = onQueryTitle,
+            modifier = Modifier
+                .padding(4.dp, 8.dp)
+                .fillMaxWidth(),
+        ) {
+            Text(
+                text = "Fetch title",
+                modifier = Modifier.padding(12.dp),
+            )
+        }
         Button(
             onClick = onSubmit,
             modifier = Modifier

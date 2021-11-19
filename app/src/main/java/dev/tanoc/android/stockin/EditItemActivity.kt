@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,9 +48,8 @@ class EditItemActivity : ComponentActivity() {
 
     @Composable
     fun Container() {
-        model.message.observe(this, EventObserver {
-            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-        })
+        val title = remember { mutableStateOf(initTitle) }
+        val url = remember { mutableStateOf(initUrl) }
 
         model.item.observe(this, EventObserver {
             val intent = Intent()
@@ -63,15 +61,21 @@ class EditItemActivity : ComponentActivity() {
             Toast.makeText(this, "The item is updated.", Toast.LENGTH_SHORT).show()
             finish()
         })
-
-        val title = remember { mutableStateOf(initTitle) }
-        val url = remember { mutableStateOf(initUrl) }
+        model.title.observe(this, EventObserver {
+            title.value = it.title
+        })
+        model.message.observe(this, EventObserver {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+        })
 
         val onTitleChanged = { input: String ->
             title.value = input
         }
         val onUrlChanged = { input: String ->
             url.value = input
+        }
+        val onQueryTitle = {
+            model.queryTitle(url.value)
         }
         val onSubmit = {
             model.submit(initId, title.value, url.value)
@@ -84,7 +88,7 @@ class EditItemActivity : ComponentActivity() {
                 )
             },
         ) {
-            ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onSubmit)
+            ItemForm(title.value, url.value, onTitleChanged, onUrlChanged, onQueryTitle, onSubmit)
         }
     }
 }
