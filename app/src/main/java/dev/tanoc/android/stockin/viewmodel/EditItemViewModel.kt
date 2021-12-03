@@ -28,7 +28,7 @@ class EditItemViewModel: ViewModel() {
     fun queryTitle(url: String) {
         viewModelScope.launch {
             try {
-                val title = titleRepository.query(url)?.let {
+                titleRepository.query(url)?.let {
                     _title.value = Event(it)
                 }
             } catch (e: Exception) {
