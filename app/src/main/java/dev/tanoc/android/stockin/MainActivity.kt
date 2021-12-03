@@ -150,6 +150,8 @@ class MainActivity : ComponentActivity() {
         val items by model.items.observeAsState(listOf())
         LazyColumn(
             state = listState,
+            modifier = Modifier
+                .fillMaxSize(),
         ) {
             items(items) { item ->
                 Item(item, onClick, onArchiveClick, onEditClick, onDeleteClick)
