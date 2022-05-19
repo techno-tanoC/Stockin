@@ -11,7 +11,10 @@ import dev.tanoc.android.stockin.repository.ItemRepository
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
-    private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
+    private lateinit var itemRepository: ItemRepository
+
+    private val _isInited = MutableLiveData(false)
+    val isInited = _isInited as LiveData<Boolean>
 
     private val _isLoading = MutableLiveData(false)
     val isLoading = _isLoading as LiveData<Boolean>
@@ -21,6 +24,11 @@ class MainViewModel : ViewModel() {
 
     private val _message = MutableLiveData<Event<String>>()
     val message = _message as LiveData<Event<String>>
+
+    fun setRepo(baseUrl: String, token: String) {
+        this.itemRepository = ItemRepository(baseUrl, token)
+        this._isInited.value = true
+    }
 
     fun loadMore() {
         if (_isLoading.value!!.not()) {
