@@ -1,4 +1,4 @@
-package dev.tanoc.stockin
+package dev.tanoc.stockin.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
