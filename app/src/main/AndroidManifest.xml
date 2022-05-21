@@ -15,12 +15,12 @@
         android:theme="@style/Theme.Stockin"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".EditItemActivity"
+            android:name=".activity.EditItemActivity"
             android:exported="true"
             android:label="@string/title_activity_edit_item"
             android:theme="@style/Theme.Stockin.NoActionBar" />
         <activity
-            android:name=".NewItemActivity"
+            android:name=".activity.NewItemActivity"
             android:exported="true"
             android:label="@string/title_activity_new_item"
             android:theme="@style/Theme.Stockin.NoActionBar">
@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Stockin.NoActionBar">
@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PreferencesActivity"
+            android:name=".activity.PreferencesActivity"
             android:exported="true"
             android:label="PreferenceActivity"
             android:theme="@style/Theme.Stockin.NoActionBar" />

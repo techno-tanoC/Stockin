@@ -1,4 +1,4 @@
-package dev.tanoc.android.stockin
+package dev.tanoc.android.stockin.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -30,13 +30,12 @@ class NewItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            DefaultPreview()
+            View()
         }
     }
 
-    @Preview(showBackground = true)
     @Composable
-    fun DefaultPreview() {
+    fun View() {
         StockinTheme {
             Container()
         }

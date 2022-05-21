@@ -1,4 +1,4 @@
-package dev.tanoc.android.stockin
+package dev.tanoc.android.stockin.activity
 
 import android.content.Intent
 import android.net.Uri
@@ -25,12 +25,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import dev.tanoc.android.stockin.activity.EditItemActivity
 import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -43,14 +43,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            App()
-        }
 
         lifecycleScope.launchWhenStarted {
             (application as StockinApplication).flowPref().collect {
                 model.setRepo(it.baseUrl, it.token)
             }
+        }
+
+        setContent {
+            View()
         }
     }
 
@@ -82,9 +83,8 @@ class MainActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    @Preview(showBackground = true)
     @Composable
-    fun App() {
+    fun View() {
         StockinTheme {
             Container()
         }

@@ -1,4 +1,4 @@
-package dev.tanoc.android.stockin
+package dev.tanoc.android.stockin.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -25,13 +24,12 @@ class PreferencesActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            View()
         }
     }
 
-    @Preview(showBackground = true)
     @Composable
-    fun App() {
+    fun View() {
         StockinTheme {
             Scaffold(
                 topBar = {
