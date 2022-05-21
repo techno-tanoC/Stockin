@@ -20,6 +20,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.android.stockin.model.EventObserver
@@ -43,6 +45,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             App()
+        }
+
+        lifecycleScope.launchWhenStarted {
+            (application as StockinApplication).flowPref().collect {
+                model.setRepo(it.baseUrl, it.token)
+            }
         }
     }
 
@@ -88,6 +96,7 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
 
+        val prefLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
         val newLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             prepend(it)
         }
@@ -100,6 +109,13 @@ class MainActivity : ComponentActivity() {
                     title = {
                         Text("Stockin")
                     },
+                    actions = {
+                        IconButton(onClick = {
+                            prefLauncher.launch(Intent(this@MainActivity, PreferencesActivity::class.java))
+                        }) {
+                            Icon(Icons.Rounded.Settings, contentDescription = "")
+                        }
+                    }
                 )
             },
             floatingActionButton = {
@@ -143,8 +159,11 @@ class MainActivity : ComponentActivity() {
         }
 
         val listState = rememberLazyListState()
-        ListHandler(listState, buffer = 25) {
-            model.loadMore()
+        val isInited by model.isInited.observeAsState(false)
+        if (isInited) {
+            ListHandler(listState, buffer = 25) {
+                model.loadMore()
+            }
         }
 
         val items by model.items.observeAsState(listOf())
