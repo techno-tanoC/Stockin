@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PreferenceActivity"
+            android:name=".PreferencesActivity"
             android:exported="true"
             android:label="PreferenceActivity"
             android:theme="@style/Theme.Stockin.NoActionBar" />
