@@ -13,8 +13,11 @@ import dev.tanoc.android.stockin.repository.TitleRepository
 import kotlinx.coroutines.launch
 
 class NewItemViewModel : ViewModel() {
-    private val itemRepository = ItemRepository("http://10.0.2.2:3000/", "debug")
-    private val titleRepository = TitleRepository("http://10.0.2.2:3000/", "debug")
+    private lateinit var itemRepository: ItemRepository
+    private lateinit var titleRepository: TitleRepository
+
+    private val _isInited = MutableLiveData(false)
+    val isInited = _isInited as LiveData<Boolean>
 
     private val _item = MutableLiveData<Event<Item>>()
     val item = _item as LiveData<Event<Item>>
@@ -25,28 +28,38 @@ class NewItemViewModel : ViewModel() {
     private val _message = MutableLiveData<Event<String>>()
     val message = _message as LiveData<Event<String>>
 
+    fun setRepo(baseUrl: String, token: String) {
+        this.itemRepository = ItemRepository(baseUrl, token)
+        this.titleRepository = TitleRepository(baseUrl, token)
+        _isInited.value = true
+    }
+
     fun queryTitle(url: String) {
-        viewModelScope.launch {
-            try {
-                titleRepository.query(url)?.let {
-                    _title.value = Event(it)
+        isInited.value?.let {
+            viewModelScope.launch {
+                try {
+                    titleRepository.query(url)?.let {
+                        _title.value = Event(it)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Stockin", "NewItemViewModel fetchTitle: $e")
+                    _message.value = Event("Failed to fetch title")
                 }
-            } catch (e: Exception) {
-                Log.e("Stockin", "NewItemViewModel fetchTitle: $e")
-                _message.value = Event("Failed to fetch title")
             }
         }
     }
 
     fun submit(title: String, url: String) {
-        viewModelScope.launch {
-            try {
-                itemRepository.create(title, url)?.let {
-                    _item.value = Event(it)
+        isInited.value?.let {
+            viewModelScope.launch {
+                try {
+                    itemRepository.create(title, url)?.let {
+                        _item.value = Event(it)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Stockin", "NewItemViewModel submit: $e")
+                    _message.value = Event("Failed to create data")
                 }
-            } catch (e: Exception) {
-                Log.e("Stockin", "NewItemViewModel submit: $e")
-                _message.value = Event("Failed to create data")
             }
         }
     }

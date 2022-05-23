@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import dev.tanoc.android.stockin.StockinApplication
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
 import kotlinx.coroutines.launch
 

@@ -8,9 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
+import dev.tanoc.android.stockin.StockinApplication
 import dev.tanoc.android.stockin.composable.ItemForm
 import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -30,7 +31,16 @@ class NewItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+            ObservePreferences()
             View()
+        }
+    }
+
+    @Composable
+    fun ObservePreferences() {
+        val pref = (application as StockinApplication).flowPref().collectAsState(null)
+        pref.value?.let {
+            model.setRepo(it.baseUrl, it.token)
         }
     }
 

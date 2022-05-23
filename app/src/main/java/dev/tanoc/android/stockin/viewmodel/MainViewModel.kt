@@ -31,7 +31,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun loadMore() {
-        if (_isLoading.value!!.not()) {
+        if (_isInited.value!! && _isLoading.value!!.not()) {
             _isLoading.value = true
 
             viewModelScope.launch {
@@ -53,7 +53,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun reload() {
-        if (_isLoading.value!!.not()) {
+        if (_isInited.value!! && _isLoading.value!!.not()) {
             _isLoading.value = true
 
             viewModelScope.launch {

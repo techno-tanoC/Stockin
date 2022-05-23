@@ -27,10 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import dev.tanoc.android.stockin.activity.EditItemActivity
+import dev.tanoc.android.stockin.StockinApplication
 import dev.tanoc.android.stockin.model.EventObserver
 import dev.tanoc.android.stockin.model.Item
 import dev.tanoc.android.stockin.ui.theme.StockinTheme
@@ -44,43 +43,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launchWhenStarted {
-            (application as StockinApplication).flowPref().collect {
-                model.setRepo(it.baseUrl, it.token)
-            }
-        }
-
         setContent {
+            ObservePreferences()
             View()
         }
     }
 
-    private fun prepend(result: ActivityResult) {
-        val id = result.data?.getLongExtra("id", 0)
-        val title = result.data?.getStringExtra("title")
-        val url = result.data?.getStringExtra("url")
-
-        if (id != null && title != null && url != null) {
-            model.prepend(id, title, url)
+    @Composable
+    fun ObservePreferences() {
+        val pref = (application as StockinApplication).flowPref().collectAsState(null)
+        pref.value?.let {
+            model.setRepo(it.baseUrl, it.token)
         }
-    }
-
-    private fun patch(result: ActivityResult) {
-        val id = result.data?.getLongExtra("id", 0)
-        val title = result.data?.getStringExtra("title")
-        val url = result.data?.getStringExtra("url")
-
-        if (id != null && title != null && url != null) {
-            model.patch(id, title, url)
-        }
-    }
-
-    private fun shareUrl(item: Item) {
-        val intent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            data = Uri.parse(item.url)
-        }
-        startActivity(intent)
     }
 
     @Composable
@@ -249,5 +223,33 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun prepend(result: ActivityResult) {
+        val id = result.data?.getLongExtra("id", 0)
+        val title = result.data?.getStringExtra("title")
+        val url = result.data?.getStringExtra("url")
+
+        if (id != null && title != null && url != null) {
+            model.prepend(id, title, url)
+        }
+    }
+
+    private fun patch(result: ActivityResult) {
+        val id = result.data?.getLongExtra("id", 0)
+        val title = result.data?.getStringExtra("title")
+        val url = result.data?.getStringExtra("url")
+
+        if (id != null && title != null && url != null) {
+            model.patch(id, title, url)
+        }
+    }
+
+    private fun shareUrl(item: Item) {
+        val intent = Intent().apply {
+            action = Intent.ACTION_VIEW
+            data = Uri.parse(item.url)
+        }
+        startActivity(intent)
     }
 }
