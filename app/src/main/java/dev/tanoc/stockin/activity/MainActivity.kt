@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.model.Item
@@ -66,6 +68,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ItemList() {
         val items = mainViewModel.items.collectAsState()
+        val isLoading = mainViewModel.isLoading.collectAsState()
 
         val onClick = { item: Item ->
             shareUrl(item.url)
@@ -78,20 +81,27 @@ class MainActivity : ComponentActivity() {
         }
 
         val listState = rememberLazyListState()
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize(),
+        val swipeRefreshState = rememberSwipeRefreshState(isLoading.value)
+
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = { mainViewModel.load() }
         ) {
-            items(items.value) { item ->
-                ItemView(
-                    item,
-                    onClick,
-                    onArchiveClick,
-                    onEditClick,
-                    onDeleteClick,
-                )
-                Divider()
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
+                items(items.value) { item ->
+                    ItemView(
+                        item,
+                        onClick,
+                        onArchiveClick,
+                        onEditClick,
+                        onDeleteClick,
+                    )
+                    Divider()
+                }
             }
         }
     }
