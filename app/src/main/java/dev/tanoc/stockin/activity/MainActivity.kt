@@ -1,5 +1,7 @@
 package dev.tanoc.stockin.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,7 +53,8 @@ class MainActivity : ComponentActivity() {
     fun ItemList() {
         val items = mainViewModel.items.collectAsState()
 
-        val onClick = { _: Item ->
+        val onClick = { item: Item ->
+            shareUrl(item.url)
         }
         val onArchiveClick = { _: Item ->
         }
@@ -69,6 +72,14 @@ class MainActivity : ComponentActivity() {
             onEditClick = onEditClick,
             onDeleteClick = onDeleteClick,
         )
+    }
+
+    private fun shareUrl(url: String) {
+        val intent = Intent().apply {
+            action = Intent.ACTION_VIEW
+            data = Uri.parse(url)
+        }
+        startActivity(intent)
     }
 
     @Preview(showBackground = true)
