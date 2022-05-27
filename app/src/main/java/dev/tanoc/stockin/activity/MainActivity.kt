@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,7 +60,17 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                 )
-            }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        val intent = Intent(this@MainActivity, NewItemActivity::class.java)
+                        startActivity(intent)
+                    }
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = "")
+                }
+            },
         ) {
             ItemList()
         }

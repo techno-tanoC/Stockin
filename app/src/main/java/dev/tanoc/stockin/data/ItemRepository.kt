@@ -17,4 +17,13 @@ class ItemRepository(
             items
         }
     }
+
+    suspend fun create(token: String, title: String, url: String) {
+        val item = itemDataSource.create(token, title, url)
+        _itemsFlow.update {
+            val list = it.toMutableList()
+            list.add(0, item)
+            list.toList()
+        }
+    }
 }
