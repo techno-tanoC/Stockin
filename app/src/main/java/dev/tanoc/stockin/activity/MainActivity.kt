@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        mainViewModel = MainViewModel(appContainer.itemRepository)
+        mainViewModel = MainViewModel(appContainer.itemRepository, appContainer.prefRepository)
 
         mainViewModel.load()
 
@@ -41,6 +43,14 @@ class MainActivity : ComponentActivity() {
                 TopAppBar(
                     title = {
                         Text("Stockin")
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            val intent = Intent(this@MainActivity, PrefActivity::class.java)
+                            startActivity(intent)
+                        }) {
+                            Icon(Icons.Rounded.Settings, "")
+                        }
                     },
                 )
             }
