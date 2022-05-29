@@ -31,7 +31,11 @@ class NewItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        newItemViewModel = NewItemViewModel(appContainer.itemRepository, appContainer.prefRepository)
+        newItemViewModel = NewItemViewModel(
+            appContainer.itemRepository,
+            appContainer.titleRepository,
+            appContainer.prefRepository
+        )
 
         setContent {
             StockinTheme {
@@ -72,6 +76,9 @@ class NewItemActivity : ComponentActivity() {
             url.value = input
         }
         val onQueryTitle = {
+            newItemViewModel.query(url.value) {
+                title.value = it.title
+            }
         }
         val onSubmit = {
             newItemViewModel.create(title.value, url.value)

@@ -32,7 +32,11 @@ class EditItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        editItemViewModel = EditItemViewModel(appContainer.itemRepository, appContainer.prefRepository)
+        editItemViewModel = EditItemViewModel(
+            appContainer.itemRepository,
+            appContainer.titleRepository,
+            appContainer.prefRepository
+        )
 
         setContent {
             StockinTheme {
@@ -73,6 +77,9 @@ class EditItemActivity : ComponentActivity() {
             url.value = input
         }
         val onQueryTitle = {
+            editItemViewModel.query(url.value) {
+                title.value = it.title
+            }
         }
         val onSubmit = {
             editItemViewModel.update(initId, title.value, url.value)
