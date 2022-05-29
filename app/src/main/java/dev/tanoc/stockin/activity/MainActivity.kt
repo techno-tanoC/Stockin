@@ -86,7 +86,8 @@ class MainActivity : ComponentActivity() {
         }
         val onArchiveClick = { _: Item ->
         }
-        val onEditClick = { _: Item ->
+        val onEditClick = { item: Item ->
+            startEditItemActivity(item)
         }
         val onDeleteClick = { _: Item ->
         }
@@ -121,6 +122,15 @@ class MainActivity : ComponentActivity() {
         val intent = Intent().apply {
             action = Intent.ACTION_VIEW
             data = Uri.parse(url)
+        }
+        startActivity(intent)
+    }
+
+    private fun startEditItemActivity(item: Item) {
+        val intent = Intent(this@MainActivity, EditItemActivity::class.java).apply {
+            putExtra("id", item.id)
+            putExtra("title", item.title)
+            putExtra("url", item.url)
         }
         startActivity(intent)
     }

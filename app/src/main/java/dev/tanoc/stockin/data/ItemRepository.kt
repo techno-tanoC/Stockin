@@ -26,4 +26,17 @@ class ItemRepository(
             list.toList()
         }
     }
+
+    suspend fun update(token: String, id: Long, title: String, url: String) {
+        val item = itemDataSource.update(token, id, title, url)
+        _itemsFlow.update { list ->
+            list.map {
+                if (it.id == id) {
+                    item
+                } else {
+                    it
+                }
+            }
+        }
+    }
 }

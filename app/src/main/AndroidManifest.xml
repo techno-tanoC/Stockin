@@ -38,6 +38,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.EditItemActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Stockin">
+        </activity>
+        <activity
             android:name=".activity.PrefActivity"
             android:exported="true"
             android:theme="@style/Theme.Stockin">
