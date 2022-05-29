@@ -7,22 +7,17 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 class AppContainer(private val context: Context) {
     private val baseUrl = "http://10.0.2.2:3000"
-
-    private val itemService = Retrofit
+    private val retrofit = Retrofit
         .Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
-        .create(ItemService::class.java)
+
+    private val itemService = retrofit.create(ItemService::class.java)
     private val itemDataSource = ItemDataSource(itemService)
     val itemRepository = ItemRepository(itemDataSource)
 
-    private val titleService = Retrofit
-        .Builder()
-        .baseUrl(baseUrl)
-        .addConverterFactory(MoshiConverterFactory.create())
-        .build()
-        .create(TitleService::class.java)
+    private val titleService = retrofit.create(TitleService::class.java)
     private val titleDataSource = TitleDataSource(titleService)
     val titleRepository = TitleRepository(titleDataSource)
 
