@@ -1,5 +1,6 @@
 package dev.tanoc.stockin.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
@@ -25,6 +26,7 @@ class EditItemViewModel(
                 }
                 _isFinish.value = true
             } catch (e: Exception) {
+                Log.e("Stockin EditItemVM", e.stackTraceToString())
             }
         }
     }

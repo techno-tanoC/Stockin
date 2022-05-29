@@ -27,7 +27,7 @@ class MainViewModel(
                     itemRepository.reload(pref.token)
                 }
             } catch (e: Exception) {
-                Log.e("Stockin MainViewModel: ", e.stackTraceToString())
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
             } finally {
                 _isLoading.value = false
             }
