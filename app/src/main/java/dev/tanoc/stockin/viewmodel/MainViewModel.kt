@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -15,8 +13,12 @@ class MainViewModel(
     private val prefRepository: PrefRepository,
 ) : ViewModel() {
     val items = itemRepository.itemsFlow
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _event = MutableSharedFlow<String>()
+    val event = _event.asSharedFlow()
 
     fun reload() {
         viewModelScope.launch {
@@ -25,9 +27,12 @@ class MainViewModel(
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
                     itemRepository.reload(pref.token)
+                } else {
+                    _event.emit("Empty token")
                 }
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _event.emit("Failed to reload items")
             } finally {
                 _isLoading.value = false
             }
@@ -41,9 +46,12 @@ class MainViewModel(
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
                     itemRepository.loadMore(pref.token)
+                } else {
+                    _event.emit("Token is empty")
                 }
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _event.emit("Failed to load items")
             } finally {
                 _isLoading.value = false
             }
@@ -57,9 +65,13 @@ class MainViewModel(
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
                     itemRepository.delete(pref.token, id)
+                    _event.emit("Deleted the item")
+                } else {
+                    _event.emit("Token is empty")
                 }
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _event.emit("Failed to delete the item")
             } finally {
                 _isLoading.value = false
             }

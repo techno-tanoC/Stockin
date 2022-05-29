@@ -7,9 +7,7 @@ import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.data.TitleRepository
 import dev.tanoc.stockin.model.Title
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class NewItemViewModel(
@@ -20,6 +18,9 @@ class NewItemViewModel(
     private val _isFinish = MutableStateFlow(false)
     val isFinish = _isFinish.asStateFlow()
 
+    private val _event = MutableSharedFlow<String>()
+    val event = _event.asSharedFlow()
+
     fun query(url: String, callback: (Title) -> Unit) {
         viewModelScope.launch {
             try {
@@ -27,9 +28,12 @@ class NewItemViewModel(
                 if (pref != null) {
                     val title = titleRepository.query(pref.token, url)
                     callback(title)
+                } else {
+                    _event.emit("Empty token")
                 }
             } catch (e: Exception) {
                 Log.e("Stockin NewItemVM", e.stackTraceToString())
+                _event.emit("Failed to query the title")
             }
         }
     }
@@ -40,10 +44,14 @@ class NewItemViewModel(
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
                     itemRepository.create(pref.token, title, url)
+                    _event.emit("Created the item")
+                } else {
+                    _event.emit("Empty token")
                 }
                 _isFinish.value = true
             } catch (e: Exception) {
                 Log.e("Stockin NewItemVM: ", e.stackTraceToString())
+                _event.emit("Failed to create the item")
             }
         }
     }

@@ -2,6 +2,7 @@ package dev.tanoc.stockin.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.Scaffold
@@ -11,10 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.NewItemViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class NewItemActivity : ComponentActivity() {
     private lateinit var newItemViewModel: NewItemViewModel
@@ -36,6 +42,14 @@ class NewItemActivity : ComponentActivity() {
             appContainer.titleRepository,
             appContainer.prefRepository
         )
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                newItemViewModel.event.collect {
+                    Toast.makeText(this@NewItemActivity, it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
 
         setContent {
             StockinTheme {

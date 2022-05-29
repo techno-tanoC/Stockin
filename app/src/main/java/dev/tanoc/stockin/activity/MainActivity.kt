@@ -3,6 +3,7 @@ package dev.tanoc.stockin.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.stockin.App
@@ -25,6 +29,8 @@ import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var mainViewModel: MainViewModel
@@ -34,6 +40,14 @@ class MainActivity : ComponentActivity() {
 
         val appContainer = (application as App).appContainer
         mainViewModel = MainViewModel(appContainer.itemRepository, appContainer.prefRepository)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.event.collect {
+                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
 
         setContent {
             StockinTheme {
