@@ -33,4 +33,20 @@ class MainViewModel(
             }
         }
     }
+
+    fun delete(id: Long) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                val pref = prefRepository.prefFlow.first()
+                if (pref != null) {
+                    itemRepository.delete(pref.token, id)
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

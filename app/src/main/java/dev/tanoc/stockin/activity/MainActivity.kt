@@ -89,7 +89,8 @@ class MainActivity : ComponentActivity() {
         val onEditClick = { item: Item ->
             startEditItemActivity(item)
         }
-        val onDeleteClick = { _: Item ->
+        val onDeleteClick = { item: Item ->
+            mainViewModel.delete(item.id)
         }
 
         val listState = rememberLazyListState()

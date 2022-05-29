@@ -29,14 +29,25 @@ class ItemRepository(
 
     suspend fun update(token: String, id: Long, title: String, url: String) {
         val item = itemDataSource.update(token, id, title, url)
-        _itemsFlow.update { list ->
-            list.map {
-                if (it.id == id) {
+        _itemsFlow.update {
+            it.map { element ->
+                if (element.id == id) {
                     item
                 } else {
-                    it
+                    element
                 }
             }
+        }
+    }
+
+    suspend fun delete(token: String, id: Long) {
+        itemDataSource.delete(token, id)
+        _itemsFlow.update {
+            val list = it.toMutableList()
+            list.removeAll { element ->
+                element.id == id
+            }
+            list.toList()
         }
     }
 }

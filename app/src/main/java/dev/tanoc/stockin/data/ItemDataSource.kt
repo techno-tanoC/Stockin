@@ -19,6 +19,9 @@ interface ItemService {
 
     @PUT("/items/{id}")
     suspend fun update(@Header("Authorization") token: String, @Path("id") id: Long, @Body params: ItemParams): Response<Data<Item>>
+
+    @DELETE("/items/{id}")
+    suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Long)
 }
 
 class ItemDataSource(
@@ -36,5 +39,9 @@ class ItemDataSource(
     suspend fun update(token: String, id: Long, title: String, url: String): Item {
         val params = ItemParams(title, url)
         return itemService.update(token, id, params).body()?.data!!
+    }
+
+    suspend fun delete(token: String, id: Long) {
+        return itemService.delete(token, id)
     }
 }
