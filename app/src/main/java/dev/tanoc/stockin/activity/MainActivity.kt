@@ -21,6 +21,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
+import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
@@ -33,8 +34,6 @@ class MainActivity : ComponentActivity() {
 
         val appContainer = (application as App).appContainer
         mainViewModel = MainViewModel(appContainer.itemRepository, appContainer.prefRepository)
-
-        mainViewModel.reload()
 
         setContent {
             StockinTheme {
@@ -116,6 +115,13 @@ class MainActivity : ComponentActivity() {
                     Divider()
                 }
             }
+        }
+
+        LoadMoreHandler(
+            state = listState,
+            buffer = 25
+        ) {
+            mainViewModel.loadMore()
         }
     }
 

@@ -12,9 +12,19 @@ class ItemRepository(
     val itemsFlow = _itemsFlow.asStateFlow()
 
     suspend fun reload(token: String) {
-        val items = itemDataSource.index(token)
+        val items = itemDataSource.index(token, Long.MAX_VALUE)
         _itemsFlow.update {
             items
+        }
+    }
+
+    suspend fun loadMore(token: String) {
+        val lastId = itemsFlow.value.lastOrNull()?.id ?: Long.MAX_VALUE
+        val items = itemDataSource.index(token, lastId)
+        _itemsFlow.update {
+            val list = it.toMutableList()
+            list.addAll(items)
+            list.toList()
         }
     }
 

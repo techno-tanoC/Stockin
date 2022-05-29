@@ -27,8 +27,8 @@ interface ItemService {
 class ItemDataSource(
     private val itemService: ItemService,
 ) {
-    suspend fun index(token: String): List<Item> {
-        return itemService.index(token, Long.MAX_VALUE).body()?.data ?: emptyList()
+    suspend fun index(token: String, before: Long): List<Item> {
+        return itemService.index(token, before).body()?.data ?: emptyList()
     }
 
     suspend fun create(token: String, title: String, url: String): Item {
