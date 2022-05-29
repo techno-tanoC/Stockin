@@ -28,7 +28,7 @@ class ItemDataSource(
     private val itemService: ItemService,
 ) {
     suspend fun index(token: String, before: Long): List<Item> {
-        return itemService.index(token, before).body()?.data ?: emptyList()
+        return itemService.index(token, before).body()?.data!!
     }
 
     suspend fun create(token: String, title: String, url: String): Item {
