@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         val appContainer = (application as App).appContainer
         mainViewModel = MainViewModel(appContainer.itemRepository, appContainer.prefRepository)
 
-        mainViewModel.load()
+        mainViewModel.reload()
 
         setContent {
             StockinTheme {
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
 
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = { mainViewModel.load() }
+            onRefresh = { mainViewModel.reload() }
         ) {
             LazyColumn(
                 state = listState,
