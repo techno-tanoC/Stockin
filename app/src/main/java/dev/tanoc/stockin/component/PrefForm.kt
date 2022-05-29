@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PrefForm(
-    token: State<String>,
+    token: String,
     onTokenChanged: (String) -> Unit,
     onSubmit: () -> Unit,
     onClear: () -> Unit,
@@ -28,7 +28,7 @@ fun PrefForm(
             .padding(7.dp),
     ) {
         OutlinedTextField(
-            value = token.value,
+            value = token,
             onValueChange = onTokenChanged,
             label = { Text("Token") },
             modifier = Modifier

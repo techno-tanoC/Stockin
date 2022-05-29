@@ -57,7 +57,7 @@ class PrefActivity : ComponentActivity() {
         }
 
         PrefForm(
-            token = token,
+            token = token.value,
             onTokenChanged = onTokenChanged,
             onSubmit = onSubmit,
             onClear = onClear
