@@ -21,7 +21,6 @@ import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class EditItemActivity : ComponentActivity() {

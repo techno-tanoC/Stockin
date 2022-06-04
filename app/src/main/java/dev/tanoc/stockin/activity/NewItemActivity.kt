@@ -22,7 +22,6 @@ import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.NewItemViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class NewItemActivity : ComponentActivity() {

@@ -1,6 +1,5 @@
 package dev.tanoc.stockin.data
 
-import android.util.Log
 import dev.tanoc.stockin.model.Data
 import dev.tanoc.stockin.model.Title
 import retrofit2.Response

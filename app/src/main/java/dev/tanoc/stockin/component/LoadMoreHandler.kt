@@ -2,7 +2,6 @@ package dev.tanoc.stockin.component
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 // https://dev.to/luismierez/infinite-lazycolumn-in-jetpack-compose-44a4

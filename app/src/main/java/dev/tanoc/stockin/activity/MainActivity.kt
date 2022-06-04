@@ -31,7 +31,6 @@ import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
