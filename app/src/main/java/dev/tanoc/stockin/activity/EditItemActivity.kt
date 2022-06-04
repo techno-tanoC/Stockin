@@ -15,12 +15,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
+import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
 import kotlinx.coroutines.launch
 
 class EditItemActivity : ComponentActivity() {
@@ -40,11 +42,12 @@ class EditItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        editItemViewModel = EditItemViewModel(
+        val factory = EditItemViewModelFactory(
             appContainer.itemRepository,
             appContainer.titleRepository,
-            appContainer.prefRepository
+            appContainer.prefRepository,
         )
+        editItemViewModel = ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.PrefForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.PrefViewModel
+import dev.tanoc.stockin.viewmodel.PrefViewModelFactory
 
 class PrefActivity : ComponentActivity() {
     private lateinit var prefViewModel: PrefViewModel
@@ -22,7 +24,10 @@ class PrefActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (this.application as App).appContainer
-        prefViewModel = PrefViewModel(appContainer.prefRepository)
+        val factory = PrefViewModelFactory(
+            appContainer.prefRepository,
+        )
+        prefViewModel = ViewModelProvider(this, factory).get(PrefViewModel::class.java)
 
         setContent {
             StockinTheme {

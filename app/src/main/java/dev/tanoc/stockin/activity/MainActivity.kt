@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -31,6 +32,7 @@ import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
+import dev.tanoc.stockin.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -40,7 +42,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        mainViewModel = MainViewModel(appContainer.itemRepository, appContainer.prefRepository)
+        val factory = MainViewModelFactory(
+            appContainer.itemRepository,
+            appContainer.prefRepository,
+        )
+        mainViewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

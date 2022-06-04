@@ -16,12 +16,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.NewItemViewModel
+import dev.tanoc.stockin.viewmodel.NewItemViewModelFactory
 import kotlinx.coroutines.launch
 
 class NewItemActivity : ComponentActivity() {
@@ -39,11 +41,12 @@ class NewItemActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appContainer = (application as App).appContainer
-        newItemViewModel = NewItemViewModel(
+        val factory = NewItemViewModelFactory(
             appContainer.itemRepository,
             appContainer.titleRepository,
-            appContainer.prefRepository
+            appContainer.prefRepository,
         )
+        newItemViewModel = ViewModelProvider(this, factory).get(NewItemViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

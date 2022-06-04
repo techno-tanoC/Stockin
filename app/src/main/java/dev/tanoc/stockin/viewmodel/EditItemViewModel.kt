@@ -2,6 +2,7 @@ package dev.tanoc.stockin.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
@@ -52,6 +53,28 @@ class EditItemViewModel(
             } catch (e: Exception) {
                 Log.e("Stockin EditItemVM", e.stackTraceToString())
                 _event.emit("Failed to edit the item")
+            }
+        }
+    }
+}
+
+class EditItemViewModelFactory(
+    private val itemRepository: ItemRepository,
+    private val titleRepository: TitleRepository,
+    private val prefRepository: PrefRepository,
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        when (modelClass) {
+            EditItemViewModel::class.java -> {
+                @Suppress("UNCHECKED_CAST")
+                return EditItemViewModel(
+                    itemRepository,
+                    titleRepository,
+                    prefRepository,
+                ) as T
+            }
+            else -> {
+                throw IllegalArgumentException("Cannot create an instance of $modelClass")
             }
         }
     }
