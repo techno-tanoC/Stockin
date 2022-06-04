@@ -20,7 +20,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "ENDPOINT", "\"http://10.0.2.2:3000/\""
+        }
+        device {
+            buildConfigField "String", "ENDPOINT", "\"http://192.168.1.131:3000/\""
+            signingConfig signingConfigs.debug
+        }
         release {
+            buildConfigField "String", "ENDPOINT", "\"https://stockin.tanoc.dev/\""
+            signingConfig signingConfigs.debug
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

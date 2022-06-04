@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class AppContainer(private val context: Context) {
-    private val baseUrl = "http://10.0.2.2:3000"
+    private val baseUrl = BuildConfig.ENDPOINT
     private val retrofit = Retrofit
         .Builder()
         .baseUrl(baseUrl)
