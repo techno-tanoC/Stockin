@@ -18,7 +18,7 @@ import dev.tanoc.stockin.viewmodel.PrefViewModel
 import dev.tanoc.stockin.viewmodel.PrefViewModelFactory
 
 class PrefActivity : ComponentActivity() {
-    private lateinit var prefViewModel: PrefViewModel
+    private lateinit var viewModel: PrefViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +27,7 @@ class PrefActivity : ComponentActivity() {
         val factory = PrefViewModelFactory(
             appContainer.prefRepository,
         )
-        prefViewModel = ViewModelProvider(this, factory).get(PrefViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory).get(PrefViewModel::class.java)
 
         setContent {
             StockinTheme {
@@ -63,11 +63,11 @@ class PrefActivity : ComponentActivity() {
             token.value = input
         }
         val onSubmit = {
-            prefViewModel.update(token.value)
+            viewModel.update(token.value)
             finish()
         }
         val onClear = {
-            prefViewModel.clear()
+            viewModel.clear()
             finish()
         }
 

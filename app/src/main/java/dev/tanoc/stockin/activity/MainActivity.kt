@@ -36,7 +36,7 @@ import dev.tanoc.stockin.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var mainViewModel: MainViewModel
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,11 +46,11 @@ class MainActivity : ComponentActivity() {
             appContainer.itemRepository,
             appContainer.prefRepository,
         )
-        mainViewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.event.collect {
+                viewModel.event.collect {
                     Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
                 }
             }
@@ -103,8 +103,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ItemList() {
-        val items = mainViewModel.items.collectAsState()
-        val isLoading = mainViewModel.isLoading.collectAsState()
+        val items = viewModel.items.collectAsState()
+        val isLoading = viewModel.isLoading.collectAsState()
 
         val onClick = { item: Item ->
             shareUrl(item.url)
@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
             startEditItemActivity(item)
         }
         val onDeleteClick = { item: Item ->
-            mainViewModel.delete(item.id)
+            viewModel.delete(item.id)
         }
 
         val listState = rememberLazyListState()
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
 
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = { mainViewModel.reload() }
+            onRefresh = { viewModel.reload() }
         ) {
             LazyColumn(
                 state = listState,
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
             state = listState,
             buffer = 25
         ) {
-            mainViewModel.loadMore()
+            viewModel.loadMore()
         }
     }
 

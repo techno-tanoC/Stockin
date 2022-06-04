@@ -23,7 +23,7 @@ import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
 import kotlinx.coroutines.launch
 
 class EditItemActivity : ComponentActivity() {
-    private lateinit var editItemViewModel: EditItemViewModel
+    private lateinit var viewModel: EditItemViewModel
 
     private val initId by lazy {
         intent.getLongExtra("id", -1)
@@ -46,11 +46,11 @@ class EditItemActivity : ComponentActivity() {
             initTitle,
             initUrl,
         )
-        editItemViewModel = ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                editItemViewModel.event.collect {
+                viewModel.event.collect {
                     Toast.makeText(this@EditItemActivity, it, Toast.LENGTH_LONG).show()
                 }
             }
@@ -85,25 +85,25 @@ class EditItemActivity : ComponentActivity() {
 
     @Composable
     fun Form() {
-        val isFinish = editItemViewModel.isFinish.collectAsState()
+        val isFinish = viewModel.isFinish.collectAsState()
         if (isFinish.value) {
             finish()
         }
 
-        val title = editItemViewModel.title.collectAsState()
-        val url = editItemViewModel.url.collectAsState()
+        val title = viewModel.title.collectAsState()
+        val url = viewModel.url.collectAsState()
 
         val onTitleChanged = { input: String ->
-            editItemViewModel.updateTitle(input)
+            viewModel.updateTitle(input)
         }
         val onUrlChanged = { input: String ->
-            editItemViewModel.updateUrl(input)
+            viewModel.updateUrl(input)
         }
         val onQueryTitle = {
-            editItemViewModel.query(url.value)
+            viewModel.query(url.value)
         }
         val onSubmit = {
-            editItemViewModel.submit(initId, title.value, url.value)
+            viewModel.submit(initId, title.value, url.value)
         }
 
         ItemForm(
