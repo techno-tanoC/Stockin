@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.data.TitleRepository
-import dev.tanoc.stockin.model.Title
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -15,20 +14,35 @@ class NewItemViewModel(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val prefRepository: PrefRepository,
+    initTitle: String,
+    initUrl: String,
 ) : ViewModel() {
+    private val _title = MutableStateFlow(initTitle)
+    val title = _title.asStateFlow()
+    private val _url = MutableStateFlow(initUrl)
+    val url = _url.asStateFlow()
+
     private val _isFinish = MutableStateFlow(false)
     val isFinish = _isFinish.asStateFlow()
 
     private val _event = MutableSharedFlow<String>()
     val event = _event.asSharedFlow()
 
-    fun query(url: String, callback: (Title) -> Unit) {
+    fun updateTitle(title: String) {
+        _title.value = title
+    }
+
+    fun updateUrl(url: String) {
+        _url.value = url
+    }
+
+    fun query(url: String) {
         viewModelScope.launch {
             try {
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
-                    val title = titleRepository.query(pref.token, url)
-                    callback(title)
+                    val response = titleRepository.query(pref.token, url)
+                    _title.value = response.title
                 } else {
                     _event.emit("Empty token")
                 }
@@ -39,7 +53,7 @@ class NewItemViewModel(
         }
     }
 
-    fun create(title: String, url: String) {
+    fun submit(title: String, url: String) {
         viewModelScope.launch {
             try {
                 val pref = prefRepository.prefFlow.first()
@@ -62,6 +76,8 @@ class NewItemViewModelFactory(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val prefRepository: PrefRepository,
+    private val initTitle: String,
+    private val initUrl: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
@@ -71,6 +87,8 @@ class NewItemViewModelFactory(
                     itemRepository,
                     titleRepository,
                     prefRepository,
+                    initTitle,
+                    initUrl,
                 ) as T
             }
             else -> {

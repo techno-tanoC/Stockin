@@ -12,8 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -45,6 +43,8 @@ class NewItemActivity : ComponentActivity() {
             appContainer.itemRepository,
             appContainer.titleRepository,
             appContainer.prefRepository,
+            "",
+            initUrl,
         )
         newItemViewModel = ViewModelProvider(this, factory).get(NewItemViewModel::class.java)
 
@@ -90,22 +90,20 @@ class NewItemActivity : ComponentActivity() {
             finish()
         }
 
-        val title = remember { mutableStateOf("") }
-        val url = remember { mutableStateOf(initUrl) }
+        val title = newItemViewModel.title.collectAsState()
+        val url = newItemViewModel.url.collectAsState()
 
         val onTitleChanged = { input: String ->
-            title.value = input
+            newItemViewModel.updateTitle(input)
         }
         val onUrlChanged = { input: String ->
-            url.value = input
+            newItemViewModel.updateUrl(input)
         }
         val onQueryTitle = {
-            newItemViewModel.query(url.value) {
-                title.value = it.title
-            }
+            newItemViewModel.query(url.value)
         }
         val onSubmit = {
-            newItemViewModel.create(title.value, url.value)
+            newItemViewModel.submit(title.value, url.value)
         }
 
         ItemForm(

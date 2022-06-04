@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -46,6 +43,8 @@ class EditItemActivity : ComponentActivity() {
             appContainer.itemRepository,
             appContainer.titleRepository,
             appContainer.prefRepository,
+            initTitle,
+            initUrl,
         )
         editItemViewModel = ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
 
@@ -91,22 +90,20 @@ class EditItemActivity : ComponentActivity() {
             finish()
         }
 
-        val title = remember { mutableStateOf(initTitle) }
-        val url = remember { mutableStateOf(initUrl) }
+        val title = editItemViewModel.title.collectAsState()
+        val url = editItemViewModel.url.collectAsState()
 
         val onTitleChanged = { input: String ->
-            title.value = input
+            editItemViewModel.updateTitle(input)
         }
         val onUrlChanged = { input: String ->
-            url.value = input
+            editItemViewModel.updateUrl(input)
         }
         val onQueryTitle = {
-            editItemViewModel.query(url.value) {
-                title.value = it.title
-            }
+            editItemViewModel.query(url.value)
         }
         val onSubmit = {
-            editItemViewModel.update(initId, title.value, url.value)
+            editItemViewModel.submit(initId, title.value, url.value)
         }
 
         ItemForm(
