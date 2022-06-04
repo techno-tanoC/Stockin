@@ -51,9 +51,11 @@ class PrefActivity : ComponentActivity() {
         }
         val onSubmit = {
             prefViewModel.update(token.value)
+            finish()
         }
         val onClear = {
             prefViewModel.clear()
+            finish()
         }
 
         PrefForm(
