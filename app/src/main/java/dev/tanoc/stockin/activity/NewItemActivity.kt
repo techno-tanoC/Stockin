@@ -25,7 +25,17 @@ import dev.tanoc.stockin.viewmodel.NewItemViewModelFactory
 import kotlinx.coroutines.launch
 
 class NewItemActivity : ComponentActivity() {
-    private lateinit var viewModel: NewItemViewModel
+    private val viewModel by lazy {
+        val appContainer = (application as App).appContainer
+        val factory = NewItemViewModelFactory(
+            appContainer.itemRepository,
+            appContainer.titleRepository,
+            appContainer.prefRepository,
+            "",
+            initUrl,
+        )
+        ViewModelProvider(this, factory).get(NewItemViewModel::class.java)
+    }
 
     private val initUrl by lazy {
         if (intent?.action == Intent.ACTION_SEND) {
@@ -37,16 +47,6 @@ class NewItemActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val appContainer = (application as App).appContainer
-        val factory = NewItemViewModelFactory(
-            appContainer.itemRepository,
-            appContainer.titleRepository,
-            appContainer.prefRepository,
-            "",
-            initUrl,
-        )
-        viewModel = ViewModelProvider(this, factory).get(NewItemViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -18,16 +18,16 @@ import dev.tanoc.stockin.viewmodel.PrefViewModel
 import dev.tanoc.stockin.viewmodel.PrefViewModelFactory
 
 class PrefActivity : ComponentActivity() {
-    private lateinit var viewModel: PrefViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+    private val viewModel by lazy {
         val appContainer = (this.application as App).appContainer
         val factory = PrefViewModelFactory(
             appContainer.prefRepository,
         )
-        viewModel = ViewModelProvider(this, factory).get(PrefViewModel::class.java)
+        ViewModelProvider(this, factory).get(PrefViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         setContent {
             StockinTheme {

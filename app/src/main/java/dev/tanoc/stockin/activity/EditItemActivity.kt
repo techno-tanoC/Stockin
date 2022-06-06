@@ -23,7 +23,17 @@ import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
 import kotlinx.coroutines.launch
 
 class EditItemActivity : ComponentActivity() {
-    private lateinit var viewModel: EditItemViewModel
+    private val viewModel by lazy {
+        val appContainer = (application as App).appContainer
+        val factory = EditItemViewModelFactory(
+            appContainer.itemRepository,
+            appContainer.titleRepository,
+            appContainer.prefRepository,
+            initTitle,
+            initUrl,
+        )
+        ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
+    }
 
     private val initId by lazy {
         intent.getLongExtra("id", -1)
@@ -37,16 +47,6 @@ class EditItemActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val appContainer = (application as App).appContainer
-        val factory = EditItemViewModelFactory(
-            appContainer.itemRepository,
-            appContainer.titleRepository,
-            appContainer.prefRepository,
-            initTitle,
-            initUrl,
-        )
-        viewModel = ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

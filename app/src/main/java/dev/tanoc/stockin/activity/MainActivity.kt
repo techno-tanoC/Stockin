@@ -36,17 +36,17 @@ import dev.tanoc.stockin.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var viewModel: MainViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+    private val viewModel by lazy {
         val appContainer = (application as App).appContainer
         val factory = MainViewModelFactory(
             appContainer.itemRepository,
             appContainer.prefRepository,
         )
-        viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
+        ViewModelProvider(this, factory).get(MainViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
