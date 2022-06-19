@@ -1,13 +1,9 @@
 package dev.tanoc.stockin.component
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import dev.tanoc.stockin.model.Item
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ItemView(
     item: Item,
@@ -25,27 +23,32 @@ fun ItemView(
     onEditClick: (Item) -> Unit,
     onDeleteClick: (Item) -> Unit,
 ) {
+    val expanded = remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
-            .clickable { onClick(item) }
+            .combinedClickable(
+                onClick = { onClick(item) },
+                onLongClick = { expanded.value = true },
+            )
             .fillMaxWidth()
     ) {
+        AsyncImage(
+            model = item.thumbnail,
+            contentDescription = null,
+            modifier = Modifier
+                .weight(1f)
+                .aspectRatio(1f)
+        )
         Text(
             text = item.title,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(1f)
+                .weight(4f)
                 .padding(12.dp),
         )
         Box {
-            val expanded = remember { mutableStateOf(false) }
-
-            IconButton(
-                onClick = { expanded.value = true },
-            ) {
-                Icon(Icons.Rounded.MoreVert, contentDescription = "")
-            }
             DropdownMenu(
                 expanded = expanded.value,
                 onDismissRequest = { expanded.value = false },
