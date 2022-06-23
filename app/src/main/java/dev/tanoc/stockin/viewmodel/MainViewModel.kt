@@ -59,7 +59,7 @@ class MainViewModel(
         }
     }
 
-    fun delete(id: Long) {
+    fun delete(id: String) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true

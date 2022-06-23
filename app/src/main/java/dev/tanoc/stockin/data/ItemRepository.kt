@@ -12,14 +12,14 @@ class ItemRepository(
     val itemsFlow = _itemsFlow.asStateFlow()
 
     suspend fun reload(token: String) {
-        val items = itemDataSource.index(token, Long.MAX_VALUE)
+        val items = itemDataSource.index(token, "ffffffff-ffff-ffff-ffff-ffffffffffff")
         _itemsFlow.update {
             items
         }
     }
 
     suspend fun loadMore(token: String) {
-        val lastId = itemsFlow.value.lastOrNull()?.id ?: Long.MAX_VALUE
+        val lastId = itemsFlow.value.lastOrNull()?.id ?: "ffffffff-ffff-ffff-ffff-ffffffffffff"
         val items = itemDataSource.index(token, lastId)
         _itemsFlow.update {
             val list = it.toMutableList()
@@ -37,7 +37,7 @@ class ItemRepository(
         }
     }
 
-    suspend fun update(token: String, id: Long, title: String, url: String) {
+    suspend fun update(token: String, id: String, title: String, url: String) {
         val item = itemDataSource.update(token, id, title, url)
         _itemsFlow.update {
             it.map { element ->
@@ -50,7 +50,7 @@ class ItemRepository(
         }
     }
 
-    suspend fun delete(token: String, id: Long) {
+    suspend fun delete(token: String, id: String) {
         itemDataSource.delete(token, id)
         _itemsFlow.update {
             val list = it.toMutableList()

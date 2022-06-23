@@ -53,7 +53,7 @@ class EditItemViewModel(
         }
     }
 
-    fun submit(id: Long, title: String, url: String) {
+    fun submit(id: String, title: String, url: String) {
         viewModelScope.launch {
             try {
                 val pref = prefRepository.prefFlow.first()

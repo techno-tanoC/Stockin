@@ -1,7 +1,7 @@
 package dev.tanoc.stockin.model
 
 data class Item(
-    val id: Long,
+    val id: String,
     val title: String,
     val url: String,
 )

@@ -36,7 +36,7 @@ class EditItemActivity : ComponentActivity() {
     }
 
     private val initId by lazy {
-        intent.getLongExtra("id", -1)
+        intent.getStringExtra("id") ?: ""
     }
     private  val initTitle by lazy {
         intent.getStringExtra("title") ?: ""

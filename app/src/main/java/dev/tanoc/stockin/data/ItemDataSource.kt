@@ -12,22 +12,22 @@ data class ItemParams(
 
 interface ItemService {
     @GET("/items")
-    suspend fun index(@Header("Authorization") token: String, @Query("before") before: Long): Response<Data<List<Item>>>
+    suspend fun index(@Header("Authorization") token: String, @Query("before") before: String): Response<Data<List<Item>>>
 
     @POST("/items")
     suspend fun create(@Header("Authorization") token: String, @Body params: ItemParams): Response<Data<Item>>
 
     @PUT("/items/{id}")
-    suspend fun update(@Header("Authorization") token: String, @Path("id") id: Long, @Body params: ItemParams): Response<Data<Item>>
+    suspend fun update(@Header("Authorization") token: String, @Path("id") id: String, @Body params: ItemParams): Response<Data<Item>>
 
     @DELETE("/items/{id}")
-    suspend fun delete(@Header("Authorization") token: String, @Path("id") id: Long)
+    suspend fun delete(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 class ItemDataSource(
     private val itemService: ItemService,
 ) {
-    suspend fun index(token: String, before: Long): List<Item> {
+    suspend fun index(token: String, before: String): List<Item> {
         val bearer = "Bearer $token"
         return itemService.index(bearer, before).body()?.data!!
     }
@@ -38,13 +38,13 @@ class ItemDataSource(
         return itemService.create(bearer, params).body()?.data!!
     }
 
-    suspend fun update(token: String, id: Long, title: String, url: String): Item {
+    suspend fun update(token: String, id: String, title: String, url: String): Item {
         val bearer = "Bearer $token"
         val params = ItemParams(title, url)
         return itemService.update(bearer, id, params).body()?.data!!
     }
 
-    suspend fun delete(token: String, id: Long) {
+    suspend fun delete(token: String, id: String) {
         val bearer = "Bearer $token"
         return itemService.delete(bearer, id)
     }
