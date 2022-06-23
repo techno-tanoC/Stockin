@@ -20,7 +20,8 @@ class TitleDataSource(
     private val titleService: TitleService,
 ) {
     suspend fun query(token: String, url: String): Title {
+        val bearer = "Bearer $token"
         val params = TitleParams(url)
-        return titleService.query(token, params).body()?.data!!
+        return titleService.query(bearer, params).body()?.data!!
     }
 }

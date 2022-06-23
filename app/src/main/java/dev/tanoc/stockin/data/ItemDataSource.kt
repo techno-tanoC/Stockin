@@ -28,20 +28,24 @@ class ItemDataSource(
     private val itemService: ItemService,
 ) {
     suspend fun index(token: String, before: Long): List<Item> {
-        return itemService.index(token, before).body()?.data!!
+        val bearer = "Bearer $token"
+        return itemService.index(bearer, before).body()?.data!!
     }
 
     suspend fun create(token: String, title: String, url: String): Item {
+        val bearer = "Bearer $token"
         val params = ItemParams(title, url)
-        return itemService.create(token, params).body()?.data!!
+        return itemService.create(bearer, params).body()?.data!!
     }
 
     suspend fun update(token: String, id: Long, title: String, url: String): Item {
+        val bearer = "Bearer $token"
         val params = ItemParams(title, url)
-        return itemService.update(token, id, params).body()?.data!!
+        return itemService.update(bearer, id, params).body()?.data!!
     }
 
     suspend fun delete(token: String, id: Long) {
-        return itemService.delete(token, id)
+        val bearer = "Bearer $token"
+        return itemService.delete(bearer, id)
     }
 }
