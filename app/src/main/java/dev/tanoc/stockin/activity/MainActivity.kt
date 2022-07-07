@@ -164,6 +164,7 @@ class MainActivity : ComponentActivity() {
             putExtra("id", item.id)
             putExtra("title", item.title)
             putExtra("url", item.url)
+            putExtra("thumbnail", item.thumbnail)
         }
         startActivity(intent)
     }

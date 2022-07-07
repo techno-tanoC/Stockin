@@ -8,6 +8,7 @@ import retrofit2.http.*
 data class ItemParams(
     val title: String,
     val url: String,
+    val thumbnail: String,
 )
 
 interface ItemService {
@@ -32,15 +33,15 @@ class ItemDataSource(
         return itemService.index(bearer, before).body()?.data!!
     }
 
-    suspend fun create(token: String, title: String, url: String): Item {
+    suspend fun create(token: String, title: String, url: String, thumbnail: String): Item {
         val bearer = "Bearer $token"
-        val params = ItemParams(title, url)
+        val params = ItemParams(title, url, thumbnail)
         return itemService.create(bearer, params).body()?.data!!
     }
 
-    suspend fun update(token: String, id: String, title: String, url: String): Item {
+    suspend fun update(token: String, id: String, title: String, url: String, thumbnail: String): Item {
         val bearer = "Bearer $token"
-        val params = ItemParams(title, url)
+        val params = ItemParams(title, url, thumbnail)
         return itemService.update(bearer, id, params).body()?.data!!
     }
 

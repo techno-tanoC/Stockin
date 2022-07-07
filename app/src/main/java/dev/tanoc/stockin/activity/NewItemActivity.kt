@@ -33,6 +33,7 @@ class NewItemActivity : ComponentActivity() {
             appContainer.prefRepository,
             "",
             initUrl,
+            "",
         )
         ViewModelProvider(this, factory).get(NewItemViewModel::class.java)
     }
@@ -92,6 +93,7 @@ class NewItemActivity : ComponentActivity() {
 
         val title = viewModel.title.collectAsState()
         val url = viewModel.url.collectAsState()
+        val thumbnail = viewModel.thumbnail.collectAsState()
 
         val onTitleChanged = { input: String ->
             viewModel.updateTitle(input)
@@ -99,18 +101,23 @@ class NewItemActivity : ComponentActivity() {
         val onUrlChanged = { input: String ->
             viewModel.updateUrl(input)
         }
+        val onThumbnailChanged = { input: String ->
+            viewModel.updateThumbnail(input)
+        }
         val onQueryTitle = {
             viewModel.query(url.value)
         }
         val onSubmit = {
-            viewModel.submit(title.value, url.value)
+            viewModel.submit(title.value, url.value, thumbnail.value)
         }
 
         ItemForm(
             title = title.value,
             url = url.value,
+            thumbnail = thumbnail.value,
             onTitleChanged = onTitleChanged,
             onUrlChanged = onUrlChanged,
+            onThumbnailChanged = onThumbnailChanged,
             onQueryTitle = onQueryTitle,
             onSubmit = onSubmit,
         )

@@ -16,11 +16,14 @@ class EditItemViewModel(
     private val prefRepository: PrefRepository,
     initTitle: String,
     initUrl: String,
+    initThumbnail: String,
 ) : ViewModel() {
     private val _title = MutableStateFlow(initTitle)
     val title = _title.asStateFlow()
     private val _url = MutableStateFlow(initUrl)
     val url = _url.asStateFlow()
+    private val _thumbnail = MutableStateFlow(initThumbnail)
+    val thumbnail = _thumbnail.asStateFlow()
 
     private val _isFinish = MutableStateFlow(false)
     val isFinish = _isFinish.asStateFlow()
@@ -34,6 +37,10 @@ class EditItemViewModel(
 
     fun updateUrl(url: String) {
         _url.value = url
+    }
+
+    fun updateThumbnail(thumbnail: String) {
+        _thumbnail.value = thumbnail
     }
 
     fun query(url: String) {
@@ -53,12 +60,12 @@ class EditItemViewModel(
         }
     }
 
-    fun submit(id: String, title: String, url: String) {
+    fun submit(id: String, title: String, url: String, thumbnail: String) {
         viewModelScope.launch {
             try {
                 val pref = prefRepository.prefFlow.first()
                 if (pref != null) {
-                    itemRepository.update(pref.token, id, title, url)
+                    itemRepository.update(pref.token, id, title, url, thumbnail)
                     _event.emit("Updated the item")
                 } else {
                     _event.emit("Empty token")
@@ -78,6 +85,7 @@ class EditItemViewModelFactory(
     private val prefRepository: PrefRepository,
     private val initTitle: String,
     private val initUrl: String,
+    private val initThumbnail: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
@@ -89,6 +97,7 @@ class EditItemViewModelFactory(
                     prefRepository,
                     initTitle,
                     initUrl,
+                    initThumbnail,
                 ) as T
             }
             else -> {

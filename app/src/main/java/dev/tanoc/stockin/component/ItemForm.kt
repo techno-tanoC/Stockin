@@ -17,8 +17,10 @@ import androidx.compose.ui.unit.dp
 fun ItemForm(
     title: String,
     url: String,
+    thumbnail: String,
     onTitleChanged: (String) -> Unit,
     onUrlChanged: (String) -> Unit,
+    onThumbnailChanged: (String) -> Unit,
     onQueryTitle: () -> Unit,
     onSubmit: () -> Unit,
 ) {
@@ -40,6 +42,14 @@ fun ItemForm(
             value = url,
             onValueChange = onUrlChanged,
             label = { Text("Url") },
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = thumbnail,
+            onValueChange = onThumbnailChanged,
+            label = { Text("Thumbnail") },
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxWidth(),

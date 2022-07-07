@@ -28,8 +28,8 @@ class ItemRepository(
         }
     }
 
-    suspend fun create(token: String, title: String, url: String) {
-        val item = itemDataSource.create(token, title, url)
+    suspend fun create(token: String, title: String, url: String, thumbnail: String) {
+        val item = itemDataSource.create(token, title, url, thumbnail)
         _itemsFlow.update {
             val list = it.toMutableList()
             list.add(0, item)
@@ -37,8 +37,8 @@ class ItemRepository(
         }
     }
 
-    suspend fun update(token: String, id: String, title: String, url: String) {
-        val item = itemDataSource.update(token, id, title, url)
+    suspend fun update(token: String, id: String, title: String, url: String, thumbnail: String) {
+        val item = itemDataSource.update(token, id, title, url, thumbnail)
         _itemsFlow.update {
             it.map { element ->
                 if (element.id == id) {
