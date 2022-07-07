@@ -29,6 +29,7 @@
         </activity>
         <activity
             android:name=".activity.NewItemActivity"
+            android:windowSoftInputMode="adjustResize"
             android:label="New Item"
             android:exported="true"
             android:theme="@style/Theme.Stockin">
@@ -40,11 +41,13 @@
         </activity>
         <activity
             android:name=".activity.EditItemActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:theme="@style/Theme.Stockin">
         </activity>
         <activity
             android:name=".activity.PrefActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:theme="@style/Theme.Stockin">
         </activity>
