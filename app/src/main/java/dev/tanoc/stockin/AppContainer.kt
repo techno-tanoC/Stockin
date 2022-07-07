@@ -5,7 +5,7 @@ import dev.tanoc.stockin.data.*
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class AppContainer(private val context: Context) {
+class AppContainer(context: Context) {
     private val baseUrl = BuildConfig.ENDPOINT
     private val retrofit = Retrofit
         .Builder()
