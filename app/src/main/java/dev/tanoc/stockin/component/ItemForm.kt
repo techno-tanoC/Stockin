@@ -22,6 +22,7 @@ fun ItemForm(
     onUrlChanged: (String) -> Unit,
     onThumbnailChanged: (String) -> Unit,
     onQueryTitle: () -> Unit,
+    onQueryThumbnail: () -> Unit,
     onSubmit: () -> Unit,
 ) {
     Column(
@@ -62,6 +63,17 @@ fun ItemForm(
         ) {
             Text(
                 text = "Query title",
+                modifier = Modifier.padding(12.dp),
+            )
+        }
+        Button(
+            onClick = onQueryThumbnail,
+            modifier = Modifier
+                .padding(4.dp, 8.dp)
+                .fillMaxWidth(),
+        ) {
+            Text(
+                text = "Query thumbnail",
                 modifier = Modifier.padding(12.dp),
             )
         }

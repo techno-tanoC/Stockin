@@ -21,5 +21,9 @@ class AppContainer(private val context: Context) {
     private val titleDataSource = TitleDataSource(titleService)
     val titleRepository = TitleRepository(titleDataSource)
 
+    private val thumbnailService = retrofit.create(ThumbnailService::class.java)
+    private val thumbnailDataSource = ThumbnailDataSource(thumbnailService)
+    val thumbnailRepository = ThumbnailRepository(thumbnailDataSource)
+
     val prefRepository = PrefRepository(context)
 }

@@ -28,6 +28,7 @@ class EditItemActivity : ComponentActivity() {
         val factory = EditItemViewModelFactory(
             appContainer.itemRepository,
             appContainer.titleRepository,
+            appContainer.thumbnailRepository,
             appContainer.prefRepository,
             initTitle,
             initUrl,
@@ -108,7 +109,10 @@ class EditItemActivity : ComponentActivity() {
             viewModel.updateThumbnail(input)
         }
         val onQueryTitle = {
-            viewModel.query(url.value)
+            viewModel.queryTitle(url.value)
+        }
+        val onQueryThumbnail = {
+            viewModel.queryThumbnail(url.value)
         }
         val onSubmit = {
             viewModel.submit(initId, title.value, url.value, thumbnail.value)
@@ -122,6 +126,7 @@ class EditItemActivity : ComponentActivity() {
             onUrlChanged = onUrlChanged,
             onThumbnailChanged = onThumbnailChanged,
             onQueryTitle = onQueryTitle,
+            onQueryThumbnail = onQueryThumbnail,
             onSubmit = onSubmit,
         )
     }

@@ -30,6 +30,7 @@ class NewItemActivity : ComponentActivity() {
         val factory = NewItemViewModelFactory(
             appContainer.itemRepository,
             appContainer.titleRepository,
+            appContainer.thumbnailRepository,
             appContainer.prefRepository,
             "",
             initUrl,
@@ -105,7 +106,10 @@ class NewItemActivity : ComponentActivity() {
             viewModel.updateThumbnail(input)
         }
         val onQueryTitle = {
-            viewModel.query(url.value)
+            viewModel.queryTitle(url.value)
+        }
+        val onQueryThumbnail = {
+            viewModel.queryThumbnail(url.value)
         }
         val onSubmit = {
             viewModel.submit(title.value, url.value, thumbnail.value)
@@ -119,6 +123,7 @@ class NewItemActivity : ComponentActivity() {
             onUrlChanged = onUrlChanged,
             onThumbnailChanged = onThumbnailChanged,
             onQueryTitle = onQueryTitle,
+            onQueryThumbnail = onQueryThumbnail,
             onSubmit = onSubmit,
         )
     }

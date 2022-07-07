@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
+import dev.tanoc.stockin.data.ThumbnailRepository
 import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class EditItemViewModel(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
+    private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
     initTitle: String,
     initUrl: String,
@@ -43,7 +45,7 @@ class EditItemViewModel(
         _thumbnail.value = thumbnail
     }
 
-    fun query(url: String) {
+    fun queryTitle(url: String) {
         viewModelScope.launch {
             try {
                 val pref = prefRepository.prefFlow.first()
@@ -56,6 +58,23 @@ class EditItemViewModel(
             } catch (e: Exception) {
                 Log.e("Stockin EditItemVM", e.stackTraceToString())
                 _event.emit("Failed to query the title")
+            }
+        }
+    }
+
+    fun queryThumbnail(url: String) {
+        viewModelScope.launch {
+            try {
+                val pref = prefRepository.prefFlow.first()
+                if (pref != null) {
+                    val response = thumbnailRepository.query(pref.token, url)
+                    _thumbnail.value = response.url
+                } else {
+                    _event.emit("Empty token")
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin EditItemVM", e.stackTraceToString())
+                _event.emit("Failed to query the thumbnail")
             }
         }
     }
@@ -82,6 +101,7 @@ class EditItemViewModel(
 class EditItemViewModelFactory(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
+    private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
     private val initTitle: String,
     private val initUrl: String,
@@ -94,6 +114,7 @@ class EditItemViewModelFactory(
                 return EditItemViewModel(
                     itemRepository,
                     titleRepository,
+                    thumbnailRepository,
                     prefRepository,
                     initTitle,
                     initUrl,
