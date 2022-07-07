@@ -22,7 +22,7 @@ interface ItemService {
     suspend fun update(@Header("Authorization") token: String, @Path("id") id: String, @Body params: ItemParams): Response<Data<Item>>
 
     @DELETE("/items/{id}")
-    suspend fun delete(@Header("Authorization") token: String, @Path("id") id: String)
+    suspend fun delete(@Header("Authorization") token: String, @Path("id") id: String): Response<Unit>
 }
 
 class ItemDataSource(
@@ -47,6 +47,6 @@ class ItemDataSource(
 
     suspend fun delete(token: String, id: String) {
         val bearer = "Bearer $token"
-        return itemService.delete(bearer, id)
+        itemService.delete(bearer, id).body()
     }
 }
