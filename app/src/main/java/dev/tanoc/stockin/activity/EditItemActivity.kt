@@ -11,16 +11,13 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
+import dev.tanoc.stockin.viewmodel.RealEditItemViewModel
 import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
-import kotlinx.coroutines.launch
 
 class EditItemActivity : ComponentActivity() {
     private val viewModel by lazy {
@@ -30,17 +27,18 @@ class EditItemActivity : ComponentActivity() {
             appContainer.titleRepository,
             appContainer.thumbnailRepository,
             appContainer.prefRepository,
+            initId,
             initTitle,
             initUrl,
             initThumbnail,
         )
-        ViewModelProvider(this, factory).get(EditItemViewModel::class.java)
+        ViewModelProvider(this, factory).get(RealEditItemViewModel::class.java)
     }
 
     private val initId by lazy {
         intent.getStringExtra("id") ?: ""
     }
-    private  val initTitle by lazy {
+    private val initTitle by lazy {
         intent.getStringExtra("title") ?: ""
     }
     private val initUrl by lazy {
@@ -53,81 +51,89 @@ class EditItemActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect {
-                    Toast.makeText(this@EditItemActivity, it, Toast.LENGTH_LONG).show()
+        setContent {
+            StockinTheme {
+                EditItemScreen(
+                    vm = viewModel,
+                    finish = { finish() },
+                    showToast = {
+                        Toast.makeText(this@EditItemActivity, it, Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EditItemScreen(
+    vm: EditItemViewModel,
+    finish: () -> Unit,
+    showToast: (String) -> Unit
+) {
+    LaunchedEffect(vm.effect) {
+        vm.effect.collect { effect ->
+            when (effect) {
+                is EditItemViewModel.Effect.Finish -> {
+                    finish()
+                }
+                is EditItemViewModel.Effect.ShowToast -> {
+                    showToast(effect.message)
                 }
             }
         }
-
-        setContent {
-            StockinTheme {
-                View()
-            }
-        }
     }
 
-    @Composable
-    fun View() {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text("Stockin")
-                    },
-                )
-            },
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Stockin")
+                },
+            )
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(it)
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(it)
-            ) {
-                Form()
-            }
+            EditItemForm(vm)
         }
     }
+}
 
-    @Composable
-    fun Form() {
-        val isFinish = viewModel.isFinish.collectAsState()
-        if (isFinish.value) {
-            finish()
-        }
+@Composable
+fun EditItemForm(vm: EditItemViewModel) {
+    val state by vm.state.collectAsState()
 
-        val title = viewModel.title.collectAsState()
-        val url = viewModel.url.collectAsState()
-        val thumbnail = viewModel.thumbnail.collectAsState()
-
-        val onTitleChanged = { input: String ->
-            viewModel.updateTitle(input)
-        }
-        val onUrlChanged = { input: String ->
-            viewModel.updateUrl(input)
-        }
-        val onThumbnailChanged = { input: String ->
-            viewModel.updateThumbnail(input)
-        }
-        val onQueryTitle = {
-            viewModel.queryTitle(url.value)
-        }
-        val onQueryThumbnail = {
-            viewModel.queryThumbnail(url.value)
-        }
-        val onSubmit = {
-            viewModel.submit(initId, title.value, url.value, thumbnail.value)
-        }
-
-        ItemForm(
-            title = title.value,
-            url = url.value,
-            thumbnail = thumbnail.value,
-            onTitleChanged = onTitleChanged,
-            onUrlChanged = onUrlChanged,
-            onThumbnailChanged = onThumbnailChanged,
-            onQueryTitle = onQueryTitle,
-            onQueryThumbnail = onQueryThumbnail,
-            onSubmit = onSubmit,
-        )
+    val onTitleChanged = { input: String ->
+        vm.event(EditItemViewModel.Event.ChangeTitle(input))
     }
+    val onUrlChanged = { input: String ->
+        vm.event(EditItemViewModel.Event.ChangeUrl(input))
+    }
+    val onThumbnailChanged = { input: String ->
+        vm.event(EditItemViewModel.Event.ChangeThumbnail(input))
+    }
+    val onQueryTitle = {
+        vm.event(EditItemViewModel.Event.QueryUrl)
+    }
+    val onQueryThumbnail = {
+        vm.event(EditItemViewModel.Event.QueryThumbnail)
+    }
+    val onSubmit = {
+        vm.event(EditItemViewModel.Event.Submit)
+    }
+
+    ItemForm(
+        title = state.title,
+        url = state.url,
+        thumbnail = state.thumbnail,
+        onTitleChanged = onTitleChanged,
+        onUrlChanged = onUrlChanged,
+        onThumbnailChanged = onThumbnailChanged,
+        onQueryTitle = onQueryTitle,
+        onQueryThumbnail = onQueryThumbnail,
+        onSubmit = onSubmit,
+    )
 }

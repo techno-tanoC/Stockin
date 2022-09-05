@@ -11,89 +11,125 @@ import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class EditItemViewModel(
+interface EditItemViewModel {
+    data class State(
+        val id: String,
+        val title: String,
+        val url: String,
+        val thumbnail: String,
+    )
+
+    sealed class Effect {
+        object Finish : Effect()
+        data class ShowToast(val message: String) : Effect()
+    }
+
+    sealed class Event {
+        class ChangeTitle(val title: String) : Event()
+        class ChangeUrl(val url: String) : Event()
+        class ChangeThumbnail(val thumbnail: String) : Event()
+        object QueryUrl : Event()
+        object QueryThumbnail : Event()
+        object Submit : Event()
+    }
+
+    val state: StateFlow<State>
+    val effect: Flow<Effect>
+    fun event(event: Event)
+}
+
+class RealEditItemViewModel(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
+    initId: String,
     initTitle: String,
     initUrl: String,
     initThumbnail: String,
-) : ViewModel() {
-    private val _title = MutableStateFlow(initTitle)
-    val title = _title.asStateFlow()
-    private val _url = MutableStateFlow(initUrl)
-    val url = _url.asStateFlow()
-    private val _thumbnail = MutableStateFlow(initThumbnail)
-    val thumbnail = _thumbnail.asStateFlow()
+) : ViewModel(), EditItemViewModel {
+    private val _state = MutableStateFlow(
+        EditItemViewModel.State(
+            id = initId,
+            title = initTitle,
+            url = initUrl,
+            thumbnail = initThumbnail,
+        )
+    )
+    override val state = _state.asStateFlow()
 
-    private val _isFinish = MutableStateFlow(false)
-    val isFinish = _isFinish.asStateFlow()
+    private val _effect = MutableSharedFlow<EditItemViewModel.Effect>()
+    override val effect = _effect.asSharedFlow()
 
-    private val _event = MutableSharedFlow<String>()
-    val event = _event.asSharedFlow()
-
-    fun updateTitle(title: String) {
-        _title.value = title
-    }
-
-    fun updateUrl(url: String) {
-        _url.value = url
-    }
-
-    fun updateThumbnail(thumbnail: String) {
-        _thumbnail.value = thumbnail
-    }
-
-    fun queryTitle(url: String) {
+    override fun event(event: EditItemViewModel.Event) {
         viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    val response = titleRepository.query(pref.token, url)
-                    _title.value = response.title
-                } else {
-                    _event.emit("Empty token")
+            when (event) {
+                is EditItemViewModel.Event.ChangeTitle -> {
+                    _state.value = _state.value.copy(title = event.title)
                 }
-            } catch (e: Exception) {
-                Log.e("Stockin EditItemVM", e.stackTraceToString())
-                _event.emit("Failed to query the title")
+                is EditItemViewModel.Event.ChangeUrl -> {
+                    _state.value = _state.value.copy(url = event.url)
+                }
+                is EditItemViewModel.Event.ChangeThumbnail -> {
+                    _state.value = _state.value.copy(thumbnail = event.thumbnail)
+                }
+                is EditItemViewModel.Event.QueryUrl -> {
+                    queryTitle(_state.value.url)
+                }
+                is EditItemViewModel.Event.QueryThumbnail -> {
+                    queryThumbnail(_state.value.url)
+                }
+                is EditItemViewModel.Event.Submit -> {
+                    val (id, title, url, thumbnail) = _state.value
+                    submit(id, title, url, thumbnail)
+                }
             }
         }
     }
 
-    fun queryThumbnail(url: String) {
-        viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    val response = thumbnailRepository.query(pref.token, url)
-                    _thumbnail.value = response.url
-                } else {
-                    _event.emit("Empty token")
-                }
-            } catch (e: Exception) {
-                Log.e("Stockin EditItemVM", e.stackTraceToString())
-                _event.emit("Failed to query the thumbnail")
+    private suspend fun queryTitle(url: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                val response = titleRepository.query(pref.token, url)
+                _state.value = _state.value.copy(title = response.title)
+            } else {
+                _effect.emit(EditItemViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin EditItemVM", e.stackTraceToString())
+            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the title"))
         }
     }
 
-    fun submit(id: String, title: String, url: String, thumbnail: String) {
-        viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.update(pref.token, id, title, url, thumbnail)
-                    _event.emit("Updated the item")
-                } else {
-                    _event.emit("Empty token")
-                }
-                _isFinish.value = true
-            } catch (e: Exception) {
-                Log.e("Stockin EditItemVM", e.stackTraceToString())
-                _event.emit("Failed to edit the item")
+    private suspend fun queryThumbnail(url: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                val response = thumbnailRepository.query(pref.token, url)
+                _state.value = _state.value.copy(thumbnail = response.url)
+            } else {
+                _effect.emit(EditItemViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin EditItemVM", e.stackTraceToString())
+            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the thumbnail"))
+        }
+    }
+
+    private suspend fun submit(id: String, title: String, url: String, thumbnail: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.update(pref.token, id, title, url, thumbnail)
+                _effect.emit(EditItemViewModel.Effect.ShowToast("Updated the item"))
+            } else {
+                _effect.emit(EditItemViewModel.Effect.ShowToast("Empty token"))
+            }
+            _effect.emit(EditItemViewModel.Effect.Finish)
+        } catch (e: Exception) {
+            Log.e("Stockin EditItemVM", e.stackTraceToString())
+            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to edit the item"))
         }
     }
 }
@@ -103,19 +139,21 @@ class EditItemViewModelFactory(
     private val titleRepository: TitleRepository,
     private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
+    private val initId: String,
     private val initTitle: String,
     private val initUrl: String,
     private val initThumbnail: String,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
-            EditItemViewModel::class.java -> {
+            RealEditItemViewModel::class.java -> {
                 @Suppress("UNCHECKED_CAST")
-                return EditItemViewModel(
+                return RealEditItemViewModel(
                     itemRepository,
                     titleRepository,
                     thumbnailRepository,
                     prefRepository,
+                    initId,
                     initTitle,
                     initUrl,
                     initThumbnail,
