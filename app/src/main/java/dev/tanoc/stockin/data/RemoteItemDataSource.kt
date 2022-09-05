@@ -25,7 +25,7 @@ interface ItemService {
     suspend fun delete(@Header("Authorization") token: String, @Path("id") id: String): Response<Unit>
 }
 
-class ItemDataSource(
+class RemoteItemDataSource(
     private val itemService: ItemService,
 ) {
     suspend fun index(token: String, before: String): List<Item> {
