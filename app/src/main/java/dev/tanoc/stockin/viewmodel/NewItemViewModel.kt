@@ -11,7 +11,33 @@ import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class NewItemViewModel(
+interface NewItemViewModel {
+    data class State(
+        val title: String,
+        val url: String,
+        val thumbnail: String,
+    )
+
+    sealed class Effect {
+        object Finish : Effect()
+        data class ShowToast(val message: String) : Effect()
+    }
+
+    sealed class Event {
+        class ChangeTitle(val title: String) : Event()
+        class ChangeUrl(val url: String) : Event()
+        class ChangeThumbnail(val thumbnail: String) : Event()
+        object QueryUrl : Event()
+        object QueryThumbnail : Event()
+        object Submit : Event()
+    }
+
+    val state: StateFlow<State>
+    val effect: Flow<Effect>
+    fun event(event: Event)
+}
+
+class RealNewItemViewModel(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val thumbnailRepository: ThumbnailRepository,
@@ -19,81 +45,88 @@ class NewItemViewModel(
     initTitle: String,
     initUrl: String,
     initThumbnail: String,
-) : ViewModel() {
-    private val _title = MutableStateFlow(initTitle)
-    val title = _title.asStateFlow()
-    private val _url = MutableStateFlow(initUrl)
-    val url = _url.asStateFlow()
-    private val _thumbnail = MutableStateFlow(initThumbnail)
-    val thumbnail = _thumbnail.asStateFlow()
+) : ViewModel(), NewItemViewModel {
+    private val _state = MutableStateFlow(
+        NewItemViewModel.State(
+            title = initTitle,
+            url = initUrl,
+            thumbnail = initThumbnail,
+        )
+    )
+    override val state = _state.asStateFlow()
 
-    private val _isFinish = MutableStateFlow(false)
-    val isFinish = _isFinish.asStateFlow()
+    private val _effect = MutableSharedFlow<NewItemViewModel.Effect>()
+    override val effect = _effect.asSharedFlow()
 
-    private val _event = MutableSharedFlow<String>()
-    val event = _event.asSharedFlow()
-
-    fun updateTitle(title: String) {
-        _title.value = title
-    }
-
-    fun updateUrl(url: String) {
-        _url.value = url
-    }
-
-    fun updateThumbnail(thumbnail: String) {
-        _thumbnail.value = thumbnail
-    }
-
-    fun queryTitle(url: String) {
+    override fun event(event: NewItemViewModel.Event) {
         viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    val response = titleRepository.query(pref.token, url)
-                    _title.value = response.title
-                } else {
-                    _event.emit("Empty token")
+            when (event) {
+                is NewItemViewModel.Event.ChangeTitle -> {
+                    _state.value = _state.value.copy(title = event.title)
                 }
-            } catch (e: Exception) {
-                Log.e("Stockin NewItemVM", e.stackTraceToString())
-                _event.emit("Failed to query the title")
+                is NewItemViewModel.Event.ChangeUrl -> {
+                    _state.value = _state.value.copy(url = event.url)
+                }
+                is NewItemViewModel.Event.ChangeThumbnail -> {
+                    _state.value = _state.value.copy(thumbnail = event.thumbnail)
+                }
+                is NewItemViewModel.Event.QueryUrl -> {
+                    queryTitle(_state.value.url)
+                }
+                is NewItemViewModel.Event.QueryThumbnail -> {
+                    queryThumbnail(_state.value.url)
+                }
+                is NewItemViewModel.Event.Submit -> {
+                    val (title, url, thumbnail) = _state.value
+                    submit(title, url, thumbnail)
+                }
             }
         }
     }
 
-    fun queryThumbnail(url: String) {
-        viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    val response = thumbnailRepository.query(pref.token, url)
-                    _thumbnail.value = response.url
-                } else {
-                    _event.emit("Empty token")
-                }
-            } catch (e: Exception) {
-                Log.e("Stockin NewItemVM", e.stackTraceToString())
-                _event.emit("Failed to query the thumbnail")
+    private suspend fun queryTitle(url: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                val response = titleRepository.query(pref.token, url)
+                _state.value = _state.value.copy(title = response.title)
+            } else {
+                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin NewItemVM", e.stackTraceToString())
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the title"))
         }
     }
 
-    fun submit(title: String, url: String, thumbnail: String) {
-        viewModelScope.launch {
-            try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.create(pref.token, title, url, thumbnail)
-                    _event.emit("Created the item")
-                } else {
-                    _event.emit("Empty token")
-                }
-                _isFinish.value = true
-            } catch (e: Exception) {
-                Log.e("Stockin NewItemVM: ", e.stackTraceToString())
-                _event.emit("Failed to create the item")
+    private suspend fun queryThumbnail(url: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                val response = thumbnailRepository.query(pref.token, url)
+                _state.value = _state.value.copy(thumbnail = response.url)
+            } else {
+                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin NewItemVM", e.stackTraceToString())
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the thumbnail"))
+        }
+    }
+
+    private suspend fun submit(title: String, url: String, thumbnail: String) {
+        try {
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.create(pref.token, title, url, thumbnail)
+                _effect.emit(NewItemViewModel.Effect.ShowToast("Created the item"))
+            } else {
+                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
+            }
+            _effect.emit(NewItemViewModel.Effect.Finish)
+        } catch (e: Exception) {
+            Log.e("Stockin NewItemVM: ", e.stackTraceToString())
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to create the item"))
         }
     }
 }
@@ -109,9 +142,9 @@ class NewItemViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
-            NewItemViewModel::class.java -> {
+            RealNewItemViewModel::class.java -> {
                 @Suppress("UNCHECKED_CAST")
-                return NewItemViewModel(
+                return RealNewItemViewModel(
                     itemRepository,
                     titleRepository,
                     thumbnailRepository,
