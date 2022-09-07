@@ -17,13 +17,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.tanoc.stockin.App
@@ -33,7 +31,7 @@ import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
 import dev.tanoc.stockin.viewmodel.MainViewModelFactory
-import kotlinx.coroutines.launch
+import dev.tanoc.stockin.viewmodel.RealMainViewModel
 
 class MainActivity : ComponentActivity() {
     private val viewModel by lazy {
@@ -42,112 +40,35 @@ class MainActivity : ComponentActivity() {
             appContainer.itemRepository,
             appContainer.prefRepository,
         )
-        ViewModelProvider(this, factory).get(MainViewModel::class.java)
+        ViewModelProvider(this, factory).get(RealMainViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect {
-                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
         setContent {
             StockinTheme {
-                View()
-            }
-        }
-    }
-
-    @Composable
-    fun View() {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text("Stockin")
+                MainScreen(
+                    vm = viewModel,
+                    startPrefActivity = {
+                        val intent = Intent(this@MainActivity, PrefActivity::class.java)
+                        startActivity(intent)
                     },
-                    actions = {
-                        IconButton(onClick = {
-                            val intent = Intent(this@MainActivity, PrefActivity::class.java)
-                            startActivity(intent)
-                        }) {
-                            Icon(Icons.Rounded.Settings, "")
-                        }
-                    },
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
+                    startNewItemActivity = {
                         val intent = Intent(this@MainActivity, NewItemActivity::class.java)
                         startActivity(intent)
-                    }
-                ) {
-                    Icon(Icons.Rounded.Add, contentDescription = "")
-                }
-            },
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(it)
-            ) {
-                ItemList()
+                    },
+                    startEditItemActivity = {
+                        startEditItemActivity(it)
+                    },
+                    shareUrl = {
+                        shareUrl(it)
+                    },
+                    showToast = {
+                        Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                    },
+                )
             }
-        }
-    }
-
-    @Composable
-    fun ItemList() {
-        val items = viewModel.items.collectAsState()
-        val isLoading = viewModel.isLoading.collectAsState()
-
-        val onClick = { item: Item ->
-            shareUrl(item.url)
-        }
-        val onArchiveClick = { _: Item ->
-        }
-        val onEditClick = { item: Item ->
-            startEditItemActivity(item)
-        }
-        val onDeleteClick = { item: Item ->
-            viewModel.delete(item.id)
-        }
-
-        val listState = rememberLazyListState()
-        val swipeRefreshState = rememberSwipeRefreshState(isLoading.value)
-
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = { viewModel.reload() }
-        ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize(),
-            ) {
-                items(items.value) { item ->
-                    ItemView(
-                        item,
-                        onClick,
-                        onArchiveClick,
-                        onEditClick,
-                        onDeleteClick,
-                    )
-                    Divider()
-                }
-            }
-        }
-
-        LoadMoreHandler(
-            state = listState,
-            buffer = 25
-        ) {
-            viewModel.loadMore()
         }
     }
 
@@ -168,12 +89,108 @@ class MainActivity : ComponentActivity() {
         }
         startActivity(intent)
     }
+}
 
-    @Preview(showBackground = true)
-    @Composable
-    fun DefaultPreview() {
-        StockinTheme {
-            View()
+@Composable
+fun MainScreen(
+    vm: MainViewModel,
+    startPrefActivity: () -> Unit,
+    startNewItemActivity: () -> Unit,
+    startEditItemActivity: (Item) -> Unit,
+    shareUrl: (String) -> Unit,
+    showToast: (String) -> Unit,
+) {
+    LaunchedEffect(vm.effect) {
+        vm.effect.collect { effect ->
+            when (effect) {
+                is MainViewModel.Effect.ShowToast -> {
+                    showToast(effect.message)
+                }
+            }
         }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Stockin")
+                },
+                actions = {
+                    IconButton(onClick = startPrefActivity) {
+                        Icon(Icons.Rounded.Settings, "")
+                    }
+                },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = startNewItemActivity) {
+                Icon(Icons.Rounded.Add, contentDescription = "")
+            }
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+        ) {
+            ItemList(
+                vm = vm,
+                startEditItemActivity = startEditItemActivity,
+                shareUrl = shareUrl,
+            )
+        }
+    }
+}
+
+@Composable
+fun ItemList(
+    vm: MainViewModel,
+    startEditItemActivity: (Item) -> Unit,
+    shareUrl: (String) -> Unit,
+) {
+    val state by vm.state.collectAsState()
+
+    val onClick = { item: Item ->
+        shareUrl(item.url)
+    }
+    val onArchiveClick = { _: Item ->
+    }
+    val onEditClick = { item: Item ->
+        startEditItemActivity(item)
+    }
+    val onDeleteClick = { item: Item ->
+        vm.event(MainViewModel.Event.Delete(item.id))
+    }
+
+    val listState = rememberLazyListState()
+    val swipeRefreshState = rememberSwipeRefreshState(state.isLoading)
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = { vm.event(MainViewModel.Event.Reload) }
+    ) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize(),
+        ) {
+            items(state.items) { item ->
+                ItemView(
+                    item,
+                    onClick,
+                    onArchiveClick,
+                    onEditClick,
+                    onDeleteClick,
+                )
+                Divider()
+            }
+        }
+    }
+
+    LoadMoreHandler(
+        state = listState,
+        buffer = 25
+    ) {
+        vm.event(MainViewModel.Event.LoadMore)
     }
 }

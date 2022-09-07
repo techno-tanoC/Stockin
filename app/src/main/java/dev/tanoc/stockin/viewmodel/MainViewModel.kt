@@ -6,76 +6,122 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
+import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class MainViewModel(
+interface MainViewModel {
+    data class State(
+        val items: List<Item>,
+        val isLoading: Boolean,
+    )
+
+    sealed class Effect {
+        data class ShowToast(val message: String) : Effect()
+    }
+
+    sealed class Event {
+        object Reload : Event()
+        object LoadMore : Event()
+        class Delete(val id: String) : Event()
+    }
+
+    val state: StateFlow<State>
+    val effect: Flow<Effect>
+    fun event(event: Event)
+}
+
+class RealMainViewModel(
     private val itemRepository: ItemRepository,
     private val prefRepository: PrefRepository,
-) : ViewModel() {
-    val items = itemRepository.itemsFlow
-
+) : ViewModel(), MainViewModel {
     private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
 
-    private val _event = MutableSharedFlow<String>()
-    val event = _event.asSharedFlow()
+    override val state = combine(
+        itemRepository.itemsFlow,
+        _isLoading,
+    ) { items, isLoading ->
+        MainViewModel.State(
+            items = items,
+            isLoading = isLoading,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = MainViewModel.State(
+            items = emptyList(),
+            isLoading = false,
+        )
+    )
 
-    fun reload() {
+    private val _effect = MutableSharedFlow<MainViewModel.Effect>()
+    override val effect = _effect.asSharedFlow()
+
+    override fun event(event: MainViewModel.Event) {
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.reload(pref.token)
-                } else {
-                    _event.emit("Empty token")
+            when (event) {
+                is MainViewModel.Event.Reload -> {
+                    reload()
                 }
-            } catch (e: Exception) {
-                Log.e("Stockin MainVM: ", e.stackTraceToString())
-                _event.emit("Failed to reload items")
-            } finally {
-                _isLoading.value = false
+                is MainViewModel.Event.LoadMore -> {
+                    loadMore()
+                }
+                is MainViewModel.Event.Delete -> {
+                    delete(event.id)
+                }
             }
         }
     }
 
-    fun loadMore() {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.loadMore(pref.token)
-                } else {
-                    _event.emit("Token is empty")
-                }
-            } catch (e: Exception) {
-                Log.e("Stockin MainVM: ", e.stackTraceToString())
-                _event.emit("Failed to load items")
-            } finally {
-                _isLoading.value = false
+    private suspend fun reload() {
+        try {
+            _isLoading.value = true
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.reload(pref.token)
+            } else {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin MainVM: ", e.stackTraceToString())
+            _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
+        } finally {
+            _isLoading.value = false
         }
     }
 
-    fun delete(id: String) {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.delete(pref.token, id)
-                    _event.emit("Deleted the item")
-                } else {
-                    _event.emit("Token is empty")
-                }
-            } catch (e: Exception) {
-                Log.e("Stockin MainVM: ", e.stackTraceToString())
-                _event.emit("Failed to delete the item")
-            } finally {
-                _isLoading.value = false
+    private suspend fun loadMore() {
+        try {
+            _isLoading.value = true
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.loadMore(pref.token)
+            } else {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
             }
+        } catch (e: Exception) {
+            Log.e("Stockin MainVM: ", e.stackTraceToString())
+            _effect.emit(MainViewModel.Effect.ShowToast("Failed to load items"))
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
+    private suspend fun delete(id: String) {
+        try {
+            _isLoading.value = true
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.delete(pref.token, id)
+                _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
+            } else {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            }
+        } catch (e: Exception) {
+            Log.e("Stockin MainVM: ", e.stackTraceToString())
+            _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
+        } finally {
+            _isLoading.value = false
         }
     }
 }
@@ -86,9 +132,9 @@ class MainViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
-            MainViewModel::class.java -> {
+            RealMainViewModel::class.java -> {
                 @Suppress("UNCHECKED_CAST")
-                return MainViewModel(
+                return RealMainViewModel(
                     itemRepository,
                     prefRepository,
                 ) as T
