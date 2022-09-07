@@ -4,20 +4,43 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.PrefRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class PrefViewModel(
-    private val prefRepository: PrefRepository,
-) : ViewModel() {
-    fun update(token: String) {
-        viewModelScope.launch {
-            prefRepository.setPref(token)
-        }
+interface PrefViewModel {
+    sealed class Event {
+        class UpdateToken(val token: String) : Event()
+        object ClearToken : Event()
     }
 
-    fun clear() {
+    sealed class Effect {
+        object Finish : Effect()
+    }
+
+    val effect: Flow<Effect>
+    fun event(event: Event)
+}
+
+class RealPrefViewModel(
+    private val prefRepository: PrefRepository,
+) : ViewModel(), PrefViewModel {
+    private val _effect = MutableSharedFlow<PrefViewModel.Effect>()
+    override val effect = _effect.asSharedFlow()
+
+    override fun event(event: PrefViewModel.Event) {
         viewModelScope.launch {
-            prefRepository.clearPref()
+            when (event) {
+                is PrefViewModel.Event.UpdateToken -> {
+                    prefRepository.setPref(event.token)
+                    _effect.emit(PrefViewModel.Effect.Finish)
+                }
+                is PrefViewModel.Event.ClearToken -> {
+                    prefRepository.clearPref()
+                    _effect.emit(PrefViewModel.Effect.Finish)
+                }
+            }
         }
     }
 }
@@ -27,9 +50,9 @@ class PrefViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         when (modelClass) {
-            PrefViewModel::class.java -> {
+            RealPrefViewModel::class.java -> {
                 @Suppress("UNCHECKED_CAST")
-                return PrefViewModel(
+                return RealPrefViewModel(
                     prefRepository,
                 ) as T
             }
