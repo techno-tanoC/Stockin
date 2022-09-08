@@ -11,7 +11,7 @@ import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-interface EditItemViewModel {
+interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, EditItemViewModel.Effect, EditItemViewModel.Event> {
     data class State(
         val id: String,
         val title: String,
@@ -33,9 +33,9 @@ interface EditItemViewModel {
         object Submit : Event()
     }
 
-    val state: StateFlow<State>
-    val effect: Flow<Effect>
-    fun event(event: Event)
+    override val state: StateFlow<State>
+    override val effect: Flow<Effect>
+    override fun event(event: Event)
 }
 
 class RealEditItemViewModel(

@@ -18,8 +18,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -32,6 +30,7 @@ import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
 import dev.tanoc.stockin.viewmodel.MainViewModelFactory
 import dev.tanoc.stockin.viewmodel.RealMainViewModel
+import dev.tanoc.stockin.viewmodel.use
 
 class MainActivity : ComponentActivity() {
     private val viewModel by lazy {
@@ -100,8 +99,10 @@ fun MainScreen(
     shareUrl: (String) -> Unit,
     showToast: (String) -> Unit,
 ) {
-    LaunchedEffect(vm.effect) {
-        vm.effect.collect { effect ->
+    val (state, effect, dispatch) = use(vm)
+
+    LaunchedEffect(effect) {
+        effect.collect { effect ->
             when (effect) {
                 is MainViewModel.Effect.ShowToast -> {
                     showToast(effect.message)
@@ -134,7 +135,9 @@ fun MainScreen(
                 .padding(it)
         ) {
             ItemList(
-                vm = vm,
+                items = state.items,
+                isLoading = state.isLoading,
+                dispatch = dispatch,
                 startEditItemActivity = startEditItemActivity,
                 shareUrl = shareUrl,
             )
@@ -144,12 +147,12 @@ fun MainScreen(
 
 @Composable
 fun ItemList(
-    vm: MainViewModel,
+    items: List<Item>,
+    isLoading: Boolean,
+    dispatch: (MainViewModel.Event) -> Unit,
     startEditItemActivity: (Item) -> Unit,
     shareUrl: (String) -> Unit,
 ) {
-    val state by vm.state.collectAsState()
-
     val onClick = { item: Item ->
         shareUrl(item.url)
     }
@@ -159,22 +162,22 @@ fun ItemList(
         startEditItemActivity(item)
     }
     val onDeleteClick = { item: Item ->
-        vm.event(MainViewModel.Event.Delete(item.id))
+        dispatch(MainViewModel.Event.Delete(item.id))
     }
 
     val listState = rememberLazyListState()
-    val swipeRefreshState = rememberSwipeRefreshState(state.isLoading)
+    val swipeRefreshState = rememberSwipeRefreshState(isLoading)
 
     SwipeRefresh(
         state = swipeRefreshState,
-        onRefresh = { vm.event(MainViewModel.Event.Reload) }
+        onRefresh = { dispatch(MainViewModel.Event.Reload) }
     ) {
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            items(state.items) { item ->
+            items(items) { item ->
                 ItemView(
                     item,
                     onClick,
@@ -191,6 +194,6 @@ fun ItemList(
         state = listState,
         buffer = 25
     ) {
-        vm.event(MainViewModel.Event.LoadMore)
+        dispatch(MainViewModel.Event.LoadMore)
     }
 }

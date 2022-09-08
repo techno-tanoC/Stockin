@@ -15,9 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.PrefForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
-import dev.tanoc.stockin.viewmodel.PrefViewModel
-import dev.tanoc.stockin.viewmodel.PrefViewModelFactory
-import dev.tanoc.stockin.viewmodel.RealPrefViewModel
+import dev.tanoc.stockin.viewmodel.*
 
 class PrefActivity : ComponentActivity() {
     private val viewModel by lazy {
@@ -47,8 +45,10 @@ fun PrefScreen(
     vm: PrefViewModel,
     finish: () -> Unit,
 ) {
-    LaunchedEffect(vm.effect) {
-        vm.effect.collect { effect ->
+    val (_, effect, dispatch) = use(vm)
+
+    LaunchedEffect(effect) {
+        effect.collect { effect ->
             when (effect) {
                 is PrefViewModel.Effect.Finish -> {
                     finish()
@@ -70,22 +70,26 @@ fun PrefScreen(
             modifier = Modifier
                 .padding(it)
         ) {
-            PrefForm(vm)
+            PrefForm(
+                dispatch = dispatch,
+            )
         }
     }
 }
 
 @Composable
-fun PrefForm(vm: PrefViewModel) {
+fun PrefForm(
+    dispatch: (PrefViewModel.Event) -> Unit,
+) {
     val token = remember { mutableStateOf("") }
     val onTokenChanged = { input: String ->
         token.value = input
     }
     val onSubmit = {
-        vm.event(PrefViewModel.Event.UpdateToken(token.value))
+        dispatch(PrefViewModel.Event.UpdateToken(token.value))
     }
     val onClear = {
-        vm.event(PrefViewModel.Event.ClearToken)
+        dispatch(PrefViewModel.Event.ClearToken)
     }
 
     PrefForm(

@@ -10,7 +10,7 @@ import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-interface MainViewModel {
+interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewModel.Effect, MainViewModel.Event> {
     data class State(
         val items: List<Item>,
         val isLoading: Boolean,
@@ -26,9 +26,9 @@ interface MainViewModel {
         class Delete(val id: String) : Event()
     }
 
-    val state: StateFlow<State>
-    val effect: Flow<Effect>
-    fun event(event: Event)
+    override val state: StateFlow<State>
+    override val effect: Flow<Effect>
+    override fun event(event: Event)
 }
 
 class RealMainViewModel(

@@ -18,6 +18,7 @@ import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
 import dev.tanoc.stockin.viewmodel.RealEditItemViewModel
 import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
+import dev.tanoc.stockin.viewmodel.use
 
 class EditItemActivity : ComponentActivity() {
     private val viewModel by lazy {
@@ -71,8 +72,10 @@ fun EditItemScreen(
     finish: () -> Unit,
     showToast: (String) -> Unit
 ) {
-    LaunchedEffect(vm.effect) {
-        vm.effect.collect { effect ->
+    val (state, effect, dispatch) = use(vm)
+
+    LaunchedEffect(effect) {
+        effect.collect { effect ->
             when (effect) {
                 is EditItemViewModel.Effect.Finish -> {
                     finish()
@@ -97,38 +100,46 @@ fun EditItemScreen(
             modifier = Modifier
                 .padding(it)
         ) {
-            EditItemForm(vm)
+            EditItemForm(
+                title = state.title,
+                url = state.url,
+                thumbnail = state.thumbnail,
+                dispatch = dispatch,
+            )
         }
     }
 }
 
 @Composable
-fun EditItemForm(vm: EditItemViewModel) {
-    val state by vm.state.collectAsState()
-
+fun EditItemForm(
+    title: String,
+    url: String,
+    thumbnail: String,
+    dispatch: (EditItemViewModel.Event) -> Unit,
+) {
     val onTitleChanged = { input: String ->
-        vm.event(EditItemViewModel.Event.ChangeTitle(input))
+        dispatch(EditItemViewModel.Event.ChangeTitle(input))
     }
     val onUrlChanged = { input: String ->
-        vm.event(EditItemViewModel.Event.ChangeUrl(input))
+        dispatch(EditItemViewModel.Event.ChangeUrl(input))
     }
     val onThumbnailChanged = { input: String ->
-        vm.event(EditItemViewModel.Event.ChangeThumbnail(input))
+        dispatch(EditItemViewModel.Event.ChangeThumbnail(input))
     }
     val onQueryTitle = {
-        vm.event(EditItemViewModel.Event.QueryUrl)
+        dispatch(EditItemViewModel.Event.QueryUrl)
     }
     val onQueryThumbnail = {
-        vm.event(EditItemViewModel.Event.QueryThumbnail)
+        dispatch(EditItemViewModel.Event.QueryThumbnail)
     }
     val onSubmit = {
-        vm.event(EditItemViewModel.Event.Submit)
+        dispatch(EditItemViewModel.Event.Submit)
     }
 
     ItemForm(
-        title = state.title,
-        url = state.url,
-        thumbnail = state.thumbnail,
+        title = title,
+        url = url,
+        thumbnail = thumbnail,
         onTitleChanged = onTitleChanged,
         onUrlChanged = onUrlChanged,
         onThumbnailChanged = onThumbnailChanged,
