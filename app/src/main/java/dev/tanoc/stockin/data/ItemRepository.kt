@@ -1,8 +1,8 @@
 package dev.tanoc.stockin.data
 
 class ItemRepository(
-    private val localItemDataSource: LocalItemDataSource,
-    private val remoteItemDataSource: RemoteItemDataSource,
+    private val localItemDataSource: ItemLocalDataSource,
+    private val remoteItemDataSource: ItemRemoteDataSource,
 ) {
     val itemsFlow = localItemDataSource.itemsFlow
 

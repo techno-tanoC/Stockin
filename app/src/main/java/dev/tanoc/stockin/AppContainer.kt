@@ -14,8 +14,8 @@ class AppContainer(context: Context) {
         .build()
 
     private val itemService = retrofit.create(ItemService::class.java)
-    private val localItemDataSource = LocalItemDataSource()
-    private val remoteItemDataSource = RemoteItemDataSource(itemService)
+    private val localItemDataSource = ItemLocalDataSource()
+    private val remoteItemDataSource = ItemRemoteDataSource(itemService)
     val itemRepository = ItemRepository(localItemDataSource, remoteItemDataSource)
 
     private val titleService = retrofit.create(TitleService::class.java)

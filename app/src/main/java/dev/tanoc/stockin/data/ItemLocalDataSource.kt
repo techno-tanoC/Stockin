@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class LocalItemDataSource {
+class ItemLocalDataSource {
     private val _itemsFlow: MutableStateFlow<List<Item>> = MutableStateFlow(emptyList())
     val itemsFlow = _itemsFlow.asStateFlow()
 
