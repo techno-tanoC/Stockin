@@ -9,32 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
-import dev.tanoc.stockin.App
+import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
 import dev.tanoc.stockin.viewmodel.RealEditItemViewModel
-import dev.tanoc.stockin.viewmodel.EditItemViewModelFactory
 import dev.tanoc.stockin.viewmodel.use
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class EditItemActivity : ComponentActivity() {
-    private val viewModel by lazy {
-        val appContainer = (application as App).appContainer
-        val factory = EditItemViewModelFactory(
-            appContainer.itemRepository,
-            appContainer.titleRepository,
-            appContainer.thumbnailRepository,
-            appContainer.prefRepository,
-            initId,
-            initTitle,
-            initUrl,
-            initThumbnail,
-        )
-        ViewModelProvider(this, factory).get(RealEditItemViewModel::class.java)
-    }
+    @Inject lateinit var viewModel: RealEditItemViewModel
 
     private val initId by lazy {
         intent.getStringExtra("id") ?: ""
@@ -51,6 +39,7 @@ class EditItemActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.init(initId, initTitle, initUrl, initThumbnail)
 
         setContent {
             StockinTheme {

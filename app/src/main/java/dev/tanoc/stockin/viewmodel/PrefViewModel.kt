@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.PrefRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 interface PrefViewModel : UnidirectionalViewModel<PrefViewModel.State, PrefViewModel.Effect, PrefViewModel.Event> {
     object State
@@ -23,7 +24,7 @@ interface PrefViewModel : UnidirectionalViewModel<PrefViewModel.State, PrefViewM
     override fun event(event: Event)
 }
 
-class RealPrefViewModel(
+class RealPrefViewModel @Inject constructor(
     private val prefRepository: PrefRepository,
 ) : ViewModel(), PrefViewModel {
     private val _state = MutableStateFlow(PrefViewModel.State)
@@ -43,24 +44,6 @@ class RealPrefViewModel(
                     prefRepository.clearPref()
                     _effect.emit(PrefViewModel.Effect.Finish)
                 }
-            }
-        }
-    }
-}
-
-class PrefViewModelFactory(
-    private val prefRepository: PrefRepository,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        when (modelClass) {
-            RealPrefViewModel::class.java -> {
-                @Suppress("UNCHECKED_CAST")
-                return RealPrefViewModel(
-                    prefRepository,
-                ) as T
-            }
-            else -> {
-                throw IllegalArgumentException("Cannot create an instance of $modelClass")
             }
         }
     }

@@ -13,25 +13,16 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NewItemActivity : ComponentActivity() {
-    private val viewModel by lazy {
-        val appContainer = (application as App).appContainer
-        val factory = NewItemViewModelFactory(
-            appContainer.itemRepository,
-            appContainer.titleRepository,
-            appContainer.thumbnailRepository,
-            appContainer.prefRepository,
-            "",
-            initUrl,
-            "",
-        )
-        ViewModelProvider(this, factory).get(RealNewItemViewModel::class.java)
-    }
+    @Inject lateinit var viewModel: RealNewItemViewModel
 
     private val initUrl by lazy {
         if (intent?.action == Intent.ACTION_SEND) {
@@ -43,6 +34,7 @@ class NewItemActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.init(initUrl)
 
         setContent {
             StockinTheme {

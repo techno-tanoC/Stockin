@@ -2,7 +2,6 @@ package dev.tanoc.stockin.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
@@ -10,6 +9,7 @@ import dev.tanoc.stockin.data.ThumbnailRepository
 import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, EditItemViewModel.Effect, EditItemViewModel.Event> {
     data class State(
@@ -38,28 +38,33 @@ interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, E
     override fun event(event: Event)
 }
 
-class RealEditItemViewModel(
+class RealEditItemViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
-    initId: String,
-    initTitle: String,
-    initUrl: String,
-    initThumbnail: String,
 ) : ViewModel(), EditItemViewModel {
     private val _state = MutableStateFlow(
         EditItemViewModel.State(
-            id = initId,
-            title = initTitle,
-            url = initUrl,
-            thumbnail = initThumbnail,
+            id = "",
+            title = "",
+            url = "",
+            thumbnail = "",
         )
     )
     override val state = _state.asStateFlow()
 
     private val _effect = MutableSharedFlow<EditItemViewModel.Effect>()
     override val effect = _effect.asSharedFlow()
+
+    fun init(id: String, title: String, url: String, thumbnail: String) {
+        _state.value = _state.value.copy(
+            id = id,
+            title = title,
+            url = url,
+            thumbnail = thumbnail,
+        )
+    }
 
     override fun event(event: EditItemViewModel.Event) {
         viewModelScope.launch {
@@ -130,38 +135,6 @@ class RealEditItemViewModel(
         } catch (e: Exception) {
             Log.e("Stockin EditItemVM", e.stackTraceToString())
             _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to edit the item"))
-        }
-    }
-}
-
-class EditItemViewModelFactory(
-    private val itemRepository: ItemRepository,
-    private val titleRepository: TitleRepository,
-    private val thumbnailRepository: ThumbnailRepository,
-    private val prefRepository: PrefRepository,
-    private val initId: String,
-    private val initTitle: String,
-    private val initUrl: String,
-    private val initThumbnail: String,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        when (modelClass) {
-            RealEditItemViewModel::class.java -> {
-                @Suppress("UNCHECKED_CAST")
-                return RealEditItemViewModel(
-                    itemRepository,
-                    titleRepository,
-                    thumbnailRepository,
-                    prefRepository,
-                    initId,
-                    initTitle,
-                    initUrl,
-                    initThumbnail,
-                ) as T
-            }
-            else -> {
-                throw IllegalArgumentException("Cannot create an instance of $modelClass")
-            }
         }
     }
 }

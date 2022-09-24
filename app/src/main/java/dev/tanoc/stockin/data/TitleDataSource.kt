@@ -6,6 +6,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import javax.inject.Inject
 
 data class TitleParams(
     val url: String,
@@ -16,7 +17,7 @@ interface TitleService {
     suspend fun query(@Header("Authorization") token: String, @Body params: TitleParams): Response<Data<Title>>
 }
 
-class TitleDataSource(
+class TitleDataSource @Inject constructor(
     private val titleService: TitleService,
 ) {
     suspend fun query(token: String, url: String): Title {

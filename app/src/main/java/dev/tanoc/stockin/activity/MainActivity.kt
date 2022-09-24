@@ -19,28 +19,21 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import dev.tanoc.stockin.App
+import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
-import dev.tanoc.stockin.viewmodel.MainViewModelFactory
 import dev.tanoc.stockin.viewmodel.RealMainViewModel
 import dev.tanoc.stockin.viewmodel.use
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel by lazy {
-        val appContainer = (application as App).appContainer
-        val factory = MainViewModelFactory(
-            appContainer.itemRepository,
-            appContainer.prefRepository,
-        )
-        ViewModelProvider(this, factory).get(RealMainViewModel::class.java)
-    }
+    @Inject lateinit var viewModel: RealMainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

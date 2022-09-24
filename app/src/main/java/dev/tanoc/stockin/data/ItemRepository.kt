@@ -1,6 +1,8 @@
 package dev.tanoc.stockin.data
 
-class ItemRepository(
+import javax.inject.Inject
+
+class ItemRepository @Inject constructor(
     private val localItemDataSource: ItemLocalDataSource,
     private val remoteItemDataSource: ItemRemoteDataSource,
 ) {

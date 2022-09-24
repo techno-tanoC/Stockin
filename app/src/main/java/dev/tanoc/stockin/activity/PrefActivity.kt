@@ -12,19 +12,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.PrefForm
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PrefActivity : ComponentActivity() {
-    private val viewModel by lazy {
-        val appContainer = (this.application as App).appContainer
-        val factory = PrefViewModelFactory(
-            appContainer.prefRepository,
-        )
-        ViewModelProvider(this, factory).get(RealPrefViewModel::class.java)
-    }
+    @Inject lateinit var viewModel: RealPrefViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -2,13 +2,13 @@ package dev.tanoc.stockin.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewModel.Effect, MainViewModel.Event> {
     data class State(
@@ -31,7 +31,7 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
     override fun event(event: Event)
 }
 
-class RealMainViewModel(
+class RealMainViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
     private val prefRepository: PrefRepository,
 ) : ViewModel(), MainViewModel {
@@ -122,26 +122,6 @@ class RealMainViewModel(
             _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
         } finally {
             _isLoading.value = false
-        }
-    }
-}
-
-class MainViewModelFactory(
-    private val itemRepository: ItemRepository,
-    private val prefRepository: PrefRepository,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        when (modelClass) {
-            RealMainViewModel::class.java -> {
-                @Suppress("UNCHECKED_CAST")
-                return RealMainViewModel(
-                    itemRepository,
-                    prefRepository,
-                ) as T
-            }
-            else -> {
-                throw IllegalArgumentException("Cannot create an instance of $modelClass")
-            }
         }
     }
 }

@@ -4,6 +4,7 @@ import dev.tanoc.stockin.model.Data
 import dev.tanoc.stockin.model.Item
 import retrofit2.Response
 import retrofit2.http.*
+import javax.inject.Inject
 
 data class ItemParams(
     val title: String,
@@ -25,7 +26,7 @@ interface ItemService {
     suspend fun delete(@Header("Authorization") token: String, @Path("id") id: String): Response<Unit>
 }
 
-class ItemRemoteDataSource(
+class ItemRemoteDataSource @Inject constructor(
     private val itemService: ItemService,
 ) {
     suspend fun index(token: String, before: String): List<Item> {

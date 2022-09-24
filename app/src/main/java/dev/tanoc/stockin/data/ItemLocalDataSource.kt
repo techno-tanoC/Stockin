@@ -4,8 +4,11 @@ import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ItemLocalDataSource {
+@Singleton
+class ItemLocalDataSource @Inject constructor() {
     private val _itemsFlow: MutableStateFlow<List<Item>> = MutableStateFlow(emptyList())
     val itemsFlow = _itemsFlow.asStateFlow()
 

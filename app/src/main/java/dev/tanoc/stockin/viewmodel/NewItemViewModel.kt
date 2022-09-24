@@ -2,7 +2,6 @@ package dev.tanoc.stockin.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
@@ -10,6 +9,7 @@ import dev.tanoc.stockin.data.ThumbnailRepository
 import dev.tanoc.stockin.data.TitleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, NewItemViewModel.Effect, NewItemViewModel.Event> {
     data class State(
@@ -37,26 +37,27 @@ interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, New
     override fun event(event: Event)
 }
 
-class RealNewItemViewModel(
+class RealNewItemViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
     private val titleRepository: TitleRepository,
     private val thumbnailRepository: ThumbnailRepository,
     private val prefRepository: PrefRepository,
-    initTitle: String,
-    initUrl: String,
-    initThumbnail: String,
 ) : ViewModel(), NewItemViewModel {
     private val _state = MutableStateFlow(
         NewItemViewModel.State(
-            title = initTitle,
-            url = initUrl,
-            thumbnail = initThumbnail,
+            title = "",
+            url = "",
+            thumbnail = "",
         )
     )
     override val state = _state.asStateFlow()
 
     private val _effect = MutableSharedFlow<NewItemViewModel.Effect>()
     override val effect = _effect.asSharedFlow()
+
+    fun init(url: String) {
+        _state.value = _state.value.copy(url = url)
+    }
 
     override fun event(event: NewItemViewModel.Event) {
         viewModelScope.launch {
@@ -127,36 +128,6 @@ class RealNewItemViewModel(
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM: ", e.stackTraceToString())
             _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to create the item"))
-        }
-    }
-}
-
-class NewItemViewModelFactory(
-    private val itemRepository: ItemRepository,
-    private val titleRepository: TitleRepository,
-    private val thumbnailRepository: ThumbnailRepository,
-    private val prefRepository: PrefRepository,
-    private val initTitle: String,
-    private val initUrl: String,
-    private val initThumbnail: String,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        when (modelClass) {
-            RealNewItemViewModel::class.java -> {
-                @Suppress("UNCHECKED_CAST")
-                return RealNewItemViewModel(
-                    itemRepository,
-                    titleRepository,
-                    thumbnailRepository,
-                    prefRepository,
-                    initTitle,
-                    initUrl,
-                    initThumbnail,
-                ) as T
-            }
-            else -> {
-                throw IllegalArgumentException("Cannot create an instance of $modelClass")
-            }
         }
     }
 }
