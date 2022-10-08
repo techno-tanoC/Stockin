@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dagger.hilt.android.AndroidEntryPoint
+import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.component.MainScaffold
@@ -77,10 +78,10 @@ class MainActivity : ComponentActivity() {
 
     private fun startEditItemActivity(item: Item) {
         val intent = Intent(this@MainActivity, EditItemActivity::class.java).apply {
-            putExtra("id", item.id)
-            putExtra("title", item.title)
-            putExtra("url", item.url)
-            putExtra("thumbnail", item.thumbnail)
+            putExtra(App.ID, item.id)
+            putExtra(App.TITLE, item.title)
+            putExtra(App.URL, item.url)
+            putExtra(App.THUMBNAIL, item.thumbnail)
         }
         startActivity(intent)
     }

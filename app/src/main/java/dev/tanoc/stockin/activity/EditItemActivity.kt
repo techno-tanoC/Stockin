@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import dagger.hilt.android.AndroidEntryPoint
+import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
 import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
@@ -20,16 +21,16 @@ class EditItemActivity : ComponentActivity() {
     @Inject lateinit var viewModel: RealEditItemViewModel
 
     private val initId by lazy {
-        intent.getStringExtra("id") ?: ""
+        intent.getStringExtra(App.ID) ?: ""
     }
     private val initTitle by lazy {
-        intent.getStringExtra("title") ?: ""
+        intent.getStringExtra(App.TITLE) ?: ""
     }
     private val initUrl by lazy {
-        intent.getStringExtra("url") ?: ""
+        intent.getStringExtra(App.URL) ?: ""
     }
     private val initThumbnail by lazy {
-        intent.getStringExtra("thumbnail") ?: ""
+        intent.getStringExtra(App.THUMBNAIL) ?: ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
