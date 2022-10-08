@@ -3,20 +3,17 @@ package dev.tanoc.stockin.activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
-import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.PrefForm
+import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
-import dev.tanoc.stockin.viewmodel.*
+import dev.tanoc.stockin.viewmodel.PrefViewModel
+import dev.tanoc.stockin.viewmodel.RealPrefViewModel
+import dev.tanoc.stockin.viewmodel.use
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -54,23 +51,10 @@ fun PrefScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Stockin")
-                },
-            )
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-        ) {
-            PrefForm(
-                dispatch = dispatch,
-            )
-        }
+    StockinScaffold {
+        PrefForm(
+            dispatch = dispatch,
+        )
     }
 }
 

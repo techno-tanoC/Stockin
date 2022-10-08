@@ -4,16 +4,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemForm
+import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.EditItemViewModel
 import dev.tanoc.stockin.viewmodel.RealEditItemViewModel
@@ -76,26 +71,13 @@ fun EditItemScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Stockin")
-                },
-            )
-        },
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-        ) {
-            EditItemForm(
-                title = state.title,
-                url = state.url,
-                thumbnail = state.thumbnail,
-                dispatch = dispatch,
-            )
-        }
+    StockinScaffold {
+        EditItemForm(
+            title = state.title,
+            url = state.url,
+            thumbnail = state.thumbnail,
+            dispatch = dispatch,
+        )
     }
 }
 

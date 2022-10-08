@@ -6,16 +6,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -24,6 +19,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
+import dev.tanoc.stockin.component.MainScaffold
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
@@ -104,37 +100,17 @@ fun MainScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Stockin")
-                },
-                actions = {
-                    IconButton(onClick = startPrefActivity) {
-                        Icon(Icons.Rounded.Settings, "")
-                    }
-                },
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = startNewItemActivity) {
-                Icon(Icons.Rounded.Add, contentDescription = "")
-            }
-        },
+    MainScaffold(
+        startPrefActivity = startPrefActivity,
+        startNewItemActivity = startNewItemActivity,
     ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-        ) {
-            ItemList(
-                items = state.items,
-                isLoading = state.isLoading,
-                dispatch = dispatch,
-                startEditItemActivity = startEditItemActivity,
-                shareUrl = shareUrl,
-            )
-        }
+        ItemList(
+            items = state.items,
+            isLoading = state.isLoading,
+            dispatch = dispatch,
+            startEditItemActivity = startEditItemActivity,
+            shareUrl = shareUrl,
+        )
     }
 }
 

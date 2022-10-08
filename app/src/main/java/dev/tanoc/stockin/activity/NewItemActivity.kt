@@ -5,19 +5,15 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import dagger.hilt.android.AndroidEntryPoint
-import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemForm
+import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
-import dev.tanoc.stockin.viewmodel.*
+import dev.tanoc.stockin.viewmodel.NewItemViewModel
+import dev.tanoc.stockin.viewmodel.RealNewItemViewModel
+import dev.tanoc.stockin.viewmodel.use
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -71,26 +67,13 @@ fun NewItemScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Stockin")
-                },
-            )
-        },
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-        ) {
-            NewItemForm(
-                title = state.title,
-                url = state.url,
-                thumbnail = state.thumbnail,
-                dispatch,
-            )
-        }
+    StockinScaffold {
+        NewItemForm(
+            title = state.title,
+            url = state.url,
+            thumbnail = state.thumbnail,
+            dispatch,
+        )
     }
 }
 
