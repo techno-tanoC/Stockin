@@ -6,13 +6,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Divider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -25,6 +31,7 @@ import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
 import dev.tanoc.stockin.viewmodel.RealMainViewModel
 import dev.tanoc.stockin.viewmodel.use
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -79,6 +86,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
     vm: MainViewModel,
@@ -100,40 +108,117 @@ fun MainScreen(
         }
     }
 
-    MainScaffold(
-        startPrefActivity = startPrefActivity,
-        startNewItemActivity = startNewItemActivity,
-    ) {
-        ItemList(
-            items = state.items,
-            isLoading = state.isLoading,
-            dispatch = dispatch,
-            startEditItemActivity = startEditItemActivity,
-            shareUrl = shareUrl,
-        )
+    val selected = remember { mutableStateOf<Item?>(null) }
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = false,
+    )
+
+    val onArchiveClick = {
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
     }
+    val onEditClick = {
+        selected.value?.let {
+            startEditItemActivity(it)
+        }
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
+    }
+    val onDeleteClick = {
+        selected.value?.let {
+            dispatch(MainViewModel.Event.Delete(it.id))
+        }
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
+    }
+
+    val onClick = { item: Item ->
+        shareUrl(item.url)
+    }
+    val onLongClick = { item: Item ->
+        selected.value = item
+        scope.launch {
+            sheetState.show()
+        }
+        Unit
+    }
+
+    ItemModal(
+        sheetState = sheetState,
+        onArchiveClick = onArchiveClick,
+        onEditClick = onEditClick,
+        onDeleteClick = onDeleteClick,
+    ) {
+        MainScaffold(
+            startPrefActivity = startPrefActivity,
+            startNewItemActivity = startNewItemActivity,
+        ) {
+            ItemList(
+                items = state.items,
+                isLoading = state.isLoading,
+                onClick = onClick,
+                onLongClick = onLongClick,
+                dispatch = dispatch,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ItemModal(
+    sheetState: ModalBottomSheetState,
+    onArchiveClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ) {
+                ListItem(
+                    icon = { Icon(Icons.Default.Check, null) },
+                    text = { Text("Archive") },
+                    modifier = Modifier.clickable { onArchiveClick() },
+                )
+                Divider()
+                ListItem(
+                    icon = { Icon(Icons.Default.Edit, null) },
+                    text = { Text("Edit") },
+                    modifier = Modifier.clickable { onEditClick() },
+                )
+                Divider()
+                ListItem(
+                    icon = { Icon(Icons.Default.Delete, null) },
+                    text = { Text("Delete") },
+                    modifier = Modifier.clickable { onDeleteClick() },
+                )
+            }
+        },
+        content = content,
+    )
 }
 
 @Composable
 fun ItemList(
     items: List<Item>,
     isLoading: Boolean,
+    onClick: (Item) -> Unit,
+    onLongClick: (Item) -> Unit,
     dispatch: (MainViewModel.Event) -> Unit,
-    startEditItemActivity: (Item) -> Unit,
-    shareUrl: (String) -> Unit,
 ) {
-    val onClick = { item: Item ->
-        shareUrl(item.url)
-    }
-    val onArchiveClick = { _: Item ->
-    }
-    val onEditClick = { item: Item ->
-        startEditItemActivity(item)
-    }
-    val onDeleteClick = { item: Item ->
-        dispatch(MainViewModel.Event.Delete(item.id))
-    }
-
     val listState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(isLoading)
 
@@ -150,9 +235,7 @@ fun ItemList(
                 ItemView(
                     item,
                     onClick,
-                    onArchiveClick,
-                    onEditClick,
-                    onDeleteClick,
+                    onLongClick,
                 )
                 Divider()
             }
