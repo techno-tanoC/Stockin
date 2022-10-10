@@ -109,7 +109,7 @@ fun MainScreen(
         }
     }
 
-    val selected = remember { mutableStateOf<Item?>(null) }
+    var selected by remember { mutableStateOf<Item?>(null) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -123,7 +123,7 @@ fun MainScreen(
         Unit
     }
     val onEditClick = {
-        selected.value?.let {
+        selected?.let {
             startEditItemActivity(it)
         }
         scope.launch {
@@ -132,7 +132,7 @@ fun MainScreen(
         Unit
     }
     val onDeleteClick = {
-        selected.value?.let {
+        selected?.let {
             dispatch(MainViewModel.Event.Delete(it.id))
         }
         scope.launch {
@@ -145,7 +145,7 @@ fun MainScreen(
         shareUrl(item.url)
     }
     val onLongClick = { item: Item ->
-        selected.value = item
+        selected = item
         scope.launch {
             sheetState.show()
         }

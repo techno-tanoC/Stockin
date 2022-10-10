@@ -3,10 +3,7 @@ package dev.tanoc.stockin.activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.PrefForm
 import dev.tanoc.stockin.component.StockinScaffold
@@ -62,19 +59,19 @@ fun PrefScreen(
 fun PrefForm(
     dispatch: (PrefViewModel.Event) -> Unit,
 ) {
-    val token = remember { mutableStateOf("") }
+    var token by remember { mutableStateOf("") }
     val onTokenChanged = { input: String ->
-        token.value = input
+        token = input
     }
     val onSubmit = {
-        dispatch(PrefViewModel.Event.UpdateToken(token.value))
+        dispatch(PrefViewModel.Event.UpdateToken(token))
     }
     val onClear = {
         dispatch(PrefViewModel.Event.ClearToken)
     }
 
     PrefForm(
-        token = token.value,
+        token = token,
         onTokenChanged = onTokenChanged,
         onSubmit = onSubmit,
         onClear = onClear

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 // https://dev.to/luismierez/infinite-lazycolumn-in-jetpack-compose-44a4
 @Composable
 fun LoadMoreHandler(state: LazyListState, buffer: Int, onLoadMore: () -> Unit) {
-    val loadMore = remember {
+    val loadMore by remember {
         derivedStateOf {
             val layoutInfo = state.layoutInfo
             val totalCount = layoutInfo.totalItemsCount
@@ -17,7 +17,7 @@ fun LoadMoreHandler(state: LazyListState, buffer: Int, onLoadMore: () -> Unit) {
     }
 
     LaunchedEffect(loadMore) {
-        snapshotFlow { loadMore.value }
+        snapshotFlow { loadMore }
             .distinctUntilChanged()
             .collect {
                 if (it) {
