@@ -24,38 +24,38 @@ fun PrefForm(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(7.dp),
+            .padding(8.dp),
     ) {
         OutlinedTextField(
             value = token,
             onValueChange = onTokenChanged,
             label = { Text("Token") },
             modifier = Modifier
-                .padding(3.dp)
+                .padding(4.dp)
                 .fillMaxWidth(),
         )
         Button(
             onClick = onSubmit,
             modifier = Modifier
-                .padding(3.dp, 8.dp)
+                .padding(4.dp, 8.dp)
                 .fillMaxWidth(),
         ) {
             Text(
                 text = "Submit",
                 modifier = Modifier
-                    .padding(11.dp)
+                    .padding(12.dp)
             )
         }
         Button(
             onClick = onClear,
             modifier = Modifier
-                .padding(3.dp, 8.dp)
+                .padding(4.dp, 8.dp)
                 .fillMaxWidth(),
         ) {
             Text(
                 text = "Clear",
                 modifier = Modifier
-                    .padding(11.dp)
+                    .padding(12.dp)
             )
         }
     }
