@@ -18,17 +18,13 @@ class ItemLocalDataSource @Inject constructor() {
 
     fun concat(items: List<Item>) {
         _itemsFlow.update {
-            val list = it.toMutableList()
-            list.addAll(items)
-            list.toList()
+            it + items
         }
     }
 
     fun prepend(item: Item) {
         _itemsFlow.update {
-            val list = it.toMutableList()
-            list.add(0, item)
-            list.toList()
+            listOf(item) + it
         }
     }
 
@@ -46,11 +42,9 @@ class ItemLocalDataSource @Inject constructor() {
 
     fun remove(id: String) {
         _itemsFlow.update {
-            val list = it.toMutableList()
-            list.removeAll { element ->
+            it.filterNot { element ->
                 element.id == id
             }
-            list.toList()
         }
     }
 }
