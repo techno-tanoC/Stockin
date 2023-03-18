@@ -27,7 +27,7 @@ interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, New
         class ChangeTitle(val title: String) : Event()
         class ChangeUrl(val url: String) : Event()
         class ChangeThumbnail(val thumbnail: String) : Event()
-        object QueryUrl : Event()
+        object QueryTitle : Event()
         object QueryThumbnail : Event()
         object Submit : Event()
     }
@@ -71,7 +71,7 @@ class RealNewItemViewModel @Inject constructor(
                 is NewItemViewModel.Event.ChangeThumbnail -> {
                     _state.value = _state.value.copy(thumbnail = event.thumbnail)
                 }
-                is NewItemViewModel.Event.QueryUrl -> {
+                is NewItemViewModel.Event.QueryTitle -> {
                     queryTitle(_state.value.url)
                 }
                 is NewItemViewModel.Event.QueryThumbnail -> {

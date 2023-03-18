@@ -28,7 +28,7 @@ interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, E
         class ChangeTitle(val title: String) : Event()
         class ChangeUrl(val url: String) : Event()
         class ChangeThumbnail(val thumbnail: String) : Event()
-        object QueryUrl : Event()
+        object QueryTitle : Event()
         object QueryThumbnail : Event()
         object Submit : Event()
     }
@@ -78,7 +78,7 @@ class RealEditItemViewModel @Inject constructor(
                 is EditItemViewModel.Event.ChangeThumbnail -> {
                     _state.value = _state.value.copy(thumbnail = event.thumbnail)
                 }
-                is EditItemViewModel.Event.QueryUrl -> {
+                is EditItemViewModel.Event.QueryTitle -> {
                     queryTitle(_state.value.url)
                 }
                 is EditItemViewModel.Event.QueryThumbnail -> {

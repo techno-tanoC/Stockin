@@ -94,7 +94,7 @@ fun NewItemForm(
         dispatch(NewItemViewModel.Event.ChangeThumbnail(input))
     }
     val onQueryTitle = {
-        dispatch(NewItemViewModel.Event.QueryUrl)
+        dispatch(NewItemViewModel.Event.QueryTitle)
     }
     val onQueryThumbnail = {
         dispatch(NewItemViewModel.Event.QueryThumbnail)

@@ -99,7 +99,7 @@ fun EditItemForm(
         dispatch(EditItemViewModel.Event.ChangeThumbnail(input))
     }
     val onQueryTitle = {
-        dispatch(EditItemViewModel.Event.QueryUrl)
+        dispatch(EditItemViewModel.Event.QueryTitle)
     }
     val onQueryThumbnail = {
         dispatch(EditItemViewModel.Event.QueryThumbnail)
