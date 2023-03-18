@@ -6,8 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dev.tanoc.stockin.BuildConfig
 import dev.tanoc.stockin.data.ItemService
-import dev.tanoc.stockin.data.ThumbnailService
-import dev.tanoc.stockin.data.TitleService
+import dev.tanoc.stockin.data.QueryService
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
@@ -28,12 +27,7 @@ object RetrofitModule {
     }
 
     @Provides
-    fun bindTitleService(): TitleService {
-        return retrofit.create()
-    }
-
-    @Provides
-    fun providerThumbnailService(): ThumbnailService {
+    fun bindQueryService(): QueryService {
         return retrofit.create()
     }
 }

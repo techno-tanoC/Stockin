@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.PrefRepository
-import dev.tanoc.stockin.data.ThumbnailRepository
-import dev.tanoc.stockin.data.TitleRepository
+import dev.tanoc.stockin.data.QueryRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,8 +38,7 @@ interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, New
 
 class RealNewItemViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
-    private val titleRepository: TitleRepository,
-    private val thumbnailRepository: ThumbnailRepository,
+    private val queryRepository: QueryRepository,
     private val prefRepository: PrefRepository,
 ) : ViewModel(), NewItemViewModel {
     private val _state = MutableStateFlow(
@@ -89,7 +87,7 @@ class RealNewItemViewModel @Inject constructor(
         try {
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
-                val response = titleRepository.query(pref.token, url)
+                val response = queryRepository.title(pref.token, url)
                 _state.value = _state.value.copy(title = response.title)
             } else {
                 _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
@@ -104,8 +102,8 @@ class RealNewItemViewModel @Inject constructor(
         try {
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
-                val response = thumbnailRepository.query(pref.token, url)
-                _state.value = _state.value.copy(thumbnail = response.url)
+                val response = queryRepository.thumbnail(pref.token, url)
+                _state.value = _state.value.copy(thumbnail = response.thumbnail)
             } else {
                 _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
             }
