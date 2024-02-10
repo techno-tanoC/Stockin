@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,17 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.component.MainScaffold
+import dev.tanoc.stockin.component.PullRefreshBox
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
@@ -165,13 +161,17 @@ fun MainScreen(
             startPrefActivity = startPrefActivity,
             startNewItemActivity = startNewItemActivity,
         ) {
-            ItemList(
-                items = state.items,
-                isLoading = state.isLoading,
-                onClick = onClick,
-                onLongClick = onLongClick,
-                dispatch = dispatch,
-            )
+            PullRefreshBox(
+                refreshing = state.isLoading,
+                onRefresh = { dispatch(MainViewModel.Event.Reload) },
+            ) {
+                ItemList(
+                    items = state.items,
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    dispatch = dispatch,
+                )
+            }
         }
     }
 }
@@ -215,44 +215,28 @@ fun ItemModal(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ItemList(
     items: List<Item>,
-    isLoading: Boolean,
     onClick: (Item) -> Unit,
     onLongClick: (Item) -> Unit,
     dispatch: (MainViewModel.Event) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isLoading,
-        onRefresh = { dispatch(MainViewModel.Event.Reload) }
-    )
 
-    Box(
-        modifier = Modifier.pullRefresh(pullRefreshState),
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            items(items) { item ->
-                ItemView(
-                    item,
-                    onClick,
-                    onLongClick,
-                )
-                Divider()
-            }
+        items(items) { item ->
+            ItemView(
+                item,
+                onClick,
+                onLongClick,
+            )
+            Divider()
         }
-
-        PullRefreshIndicator(
-            refreshing = isLoading,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
     }
 
     LoadMoreHandler(
