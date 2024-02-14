@@ -26,8 +26,7 @@ interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, New
         class ChangeTitle(val title: String) : Event()
         class ChangeUrl(val url: String) : Event()
         class ChangeThumbnail(val thumbnail: String) : Event()
-        object QueryTitle : Event()
-        object QueryThumbnail : Event()
+        object QueryInfo : Event()
         object Submit : Event()
     }
 
@@ -69,11 +68,8 @@ class RealNewItemViewModel @Inject constructor(
                 is NewItemViewModel.Event.ChangeThumbnail -> {
                     _state.value = _state.value.copy(thumbnail = event.thumbnail)
                 }
-                is NewItemViewModel.Event.QueryTitle -> {
-                    queryTitle(_state.value.url)
-                }
-                is NewItemViewModel.Event.QueryThumbnail -> {
-                    queryThumbnail(_state.value.url)
+                is NewItemViewModel.Event.QueryInfo -> {
+                    queryInfo(_state.value.url)
                 }
                 is NewItemViewModel.Event.Submit -> {
                     val (title, url, thumbnail) = _state.value
@@ -83,33 +79,18 @@ class RealNewItemViewModel @Inject constructor(
         }
     }
 
-    private suspend fun queryTitle(url: String) {
+    private suspend fun queryInfo(url: String) {
         try {
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
-                val response = queryRepository.title(pref.token, url)
-                _state.value = _state.value.copy(title = response.title)
+                val response = queryRepository.info(pref.token, url)
+                _state.value = _state.value.copy(title = response.title, thumbnail = response.thumbnail)
             } else {
                 _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
             }
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM", e.stackTraceToString())
-            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the title"))
-        }
-    }
-
-    private suspend fun queryThumbnail(url: String) {
-        try {
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                val response = queryRepository.thumbnail(pref.token, url)
-                _state.value = _state.value.copy(thumbnail = response.thumbnail)
-            } else {
-                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
-            }
-        } catch (e: Exception) {
-            Log.e("Stockin NewItemVM", e.stackTraceToString())
-            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the thumbnail"))
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the info"))
         }
     }
 

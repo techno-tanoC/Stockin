@@ -98,11 +98,8 @@ fun EditItemForm(
     val onThumbnailChanged = { input: String ->
         dispatch(EditItemViewModel.Event.ChangeThumbnail(input))
     }
-    val onQueryTitle = {
-        dispatch(EditItemViewModel.Event.QueryTitle)
-    }
-    val onQueryThumbnail = {
-        dispatch(EditItemViewModel.Event.QueryThumbnail)
+    val onQueryInfo = {
+        dispatch(EditItemViewModel.Event.QueryInfo)
     }
     val onSubmit = {
         dispatch(EditItemViewModel.Event.Submit)
@@ -115,8 +112,7 @@ fun EditItemForm(
         onTitleChanged = onTitleChanged,
         onUrlChanged = onUrlChanged,
         onThumbnailChanged = onThumbnailChanged,
-        onQueryTitle = onQueryTitle,
-        onQueryThumbnail = onQueryThumbnail,
+        onQueryInfo = onQueryInfo,
         onSubmit = onSubmit,
     )
 }

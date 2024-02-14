@@ -1,5 +1,6 @@
 package dev.tanoc.stockin.model
 
-data class Title(
+data class Info(
     val title: String,
+    val thumbnail: String,
 )

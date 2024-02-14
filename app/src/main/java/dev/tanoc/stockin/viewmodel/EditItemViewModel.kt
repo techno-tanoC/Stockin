@@ -27,8 +27,7 @@ interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, E
         class ChangeTitle(val title: String) : Event()
         class ChangeUrl(val url: String) : Event()
         class ChangeThumbnail(val thumbnail: String) : Event()
-        object QueryTitle : Event()
-        object QueryThumbnail : Event()
+        object QueryInfo : Event()
         object Submit : Event()
     }
 
@@ -76,11 +75,8 @@ class RealEditItemViewModel @Inject constructor(
                 is EditItemViewModel.Event.ChangeThumbnail -> {
                     _state.value = _state.value.copy(thumbnail = event.thumbnail)
                 }
-                is EditItemViewModel.Event.QueryTitle -> {
-                    queryTitle(_state.value.url)
-                }
-                is EditItemViewModel.Event.QueryThumbnail -> {
-                    queryThumbnail(_state.value.url)
+                is EditItemViewModel.Event.QueryInfo -> {
+                    queryInfo(_state.value.url)
                 }
                 is EditItemViewModel.Event.Submit -> {
                     val (id, title, url, thumbnail) = _state.value
@@ -90,33 +86,18 @@ class RealEditItemViewModel @Inject constructor(
         }
     }
 
-    private suspend fun queryTitle(url: String) {
+    private suspend fun queryInfo(url: String) {
         try {
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
-                val response = queryRepository.title(pref.token, url)
-                _state.value = _state.value.copy(title = response.title)
+                val response = queryRepository.info(pref.token, url)
+                _state.value = _state.value.copy(title = response.title, thumbnail = response.thumbnail)
             } else {
                 _effect.emit(EditItemViewModel.Effect.ShowToast("Empty token"))
             }
         } catch (e: Exception) {
             Log.e("Stockin EditItemVM", e.stackTraceToString())
-            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the title"))
-        }
-    }
-
-    private suspend fun queryThumbnail(url: String) {
-        try {
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                val response = queryRepository.thumbnail(pref.token, url)
-                _state.value = _state.value.copy(thumbnail = response.thumbnail)
-            } else {
-                _effect.emit(EditItemViewModel.Effect.ShowToast("Empty token"))
-            }
-        } catch (e: Exception) {
-            Log.e("Stockin EditItemVM", e.stackTraceToString())
-            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the thumbnail"))
+            _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the info"))
         }
     }
 

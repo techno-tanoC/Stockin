@@ -93,11 +93,8 @@ fun NewItemForm(
     val onThumbnailChanged = { input: String ->
         dispatch(NewItemViewModel.Event.ChangeThumbnail(input))
     }
-    val onQueryTitle = {
-        dispatch(NewItemViewModel.Event.QueryTitle)
-    }
-    val onQueryThumbnail = {
-        dispatch(NewItemViewModel.Event.QueryThumbnail)
+    val onQueryInfo = {
+        dispatch(NewItemViewModel.Event.QueryInfo)
     }
     val onSubmit = {
         dispatch(NewItemViewModel.Event.Submit)
@@ -110,8 +107,7 @@ fun NewItemForm(
         onTitleChanged = onTitleChanged,
         onUrlChanged = onUrlChanged,
         onThumbnailChanged = onThumbnailChanged,
-        onQueryTitle = onQueryTitle,
-        onQueryThumbnail = onQueryThumbnail,
+        onQueryInfo = onQueryInfo,
         onSubmit = onSubmit,
     )
 }
