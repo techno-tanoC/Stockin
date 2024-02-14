@@ -10,8 +10,6 @@ data class ItemParams(
     val title: String,
     val url: String,
     val thumbnail: String,
-    val archived: Boolean,
-    val liked: Boolean,
 )
 
 interface ItemService {
@@ -38,13 +36,13 @@ class ItemRemoteDataSource @Inject constructor(
 
     suspend fun create(token: String, title: String, url: String, thumbnail: String): Item {
         val bearer = "Bearer $token"
-        val params = ItemParams(title, url, thumbnail, false, false)
+        val params = ItemParams(title, url, thumbnail)
         return itemService.create(bearer, params).body()?.data!!
     }
 
     suspend fun update(token: String, id: String, title: String, url: String, thumbnail: String): Item {
         val bearer = "Bearer $token"
-        val params = ItemParams(title, url, thumbnail, false, false)
+        val params = ItemParams(title, url, thumbnail)
         return itemService.update(bearer, id, params).body()?.data!!
     }
 
