@@ -77,6 +77,7 @@ fun EditItemScreen(
             title = state.title,
             url = state.url,
             thumbnail = state.thumbnail,
+            isLoading = state.isLoading,
             dispatch = dispatch,
         )
     }
@@ -87,6 +88,7 @@ fun EditItemForm(
     title: String,
     url: String,
     thumbnail: String,
+    isLoading: Boolean,
     dispatch: (EditItemViewModel.Event) -> Unit,
 ) {
     val onTitleChanged = { input: String ->
@@ -109,6 +111,7 @@ fun EditItemForm(
         title = title,
         url = url,
         thumbnail = thumbnail,
+        isLoading = isLoading,
         onTitleChanged = onTitleChanged,
         onUrlChanged = onUrlChanged,
         onThumbnailChanged = onThumbnailChanged,

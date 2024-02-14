@@ -16,6 +16,7 @@ interface EditItemViewModel : UnidirectionalViewModel<EditItemViewModel.State, E
         val title: String,
         val url: String,
         val thumbnail: String,
+        val isLoading: Boolean,
     )
 
     sealed class Effect {
@@ -47,6 +48,7 @@ class RealEditItemViewModel @Inject constructor(
             title = "",
             url = "",
             thumbnail = "",
+            isLoading = false,
         )
     )
     override val state = _state.asStateFlow()
@@ -88,6 +90,7 @@ class RealEditItemViewModel @Inject constructor(
 
     private suspend fun queryInfo(url: String) {
         try {
+            _state.value = _state.value.copy(isLoading = true)
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
                 val response = queryRepository.info(pref.token, url)
@@ -98,11 +101,14 @@ class RealEditItemViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.e("Stockin EditItemVM", e.stackTraceToString())
             _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to query the info"))
+        } finally {
+            _state.value = _state.value.copy(isLoading = false)
         }
     }
 
     private suspend fun submit(id: String, title: String, url: String, thumbnail: String) {
         try {
+            _state.value = _state.value.copy(isLoading = true)
             val pref = prefRepository.prefFlow.first()
             if (pref != null) {
                 itemRepository.update(pref.token, id, title, url, thumbnail)
@@ -114,6 +120,8 @@ class RealEditItemViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.e("Stockin EditItemVM", e.stackTraceToString())
             _effect.emit(EditItemViewModel.Effect.ShowToast("Failed to edit the item"))
+        } finally {
+            _state.value = _state.value.copy(isLoading = false)
         }
     }
 }

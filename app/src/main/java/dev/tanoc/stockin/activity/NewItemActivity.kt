@@ -72,6 +72,7 @@ fun NewItemScreen(
             title = state.title,
             url = state.url,
             thumbnail = state.thumbnail,
+            isLoading = state.isLoading,
             dispatch,
         )
     }
@@ -82,6 +83,7 @@ fun NewItemForm(
     title: String,
     url: String,
     thumbnail: String,
+    isLoading: Boolean,
     dispatch: (NewItemViewModel.Event) -> Unit,
 ) {
     val onTitleChanged = { input: String ->
@@ -104,6 +106,7 @@ fun NewItemForm(
         title = title,
         url = url,
         thumbnail = thumbnail,
+        isLoading = isLoading,
         onTitleChanged = onTitleChanged,
         onUrlChanged = onUrlChanged,
         onThumbnailChanged = onThumbnailChanged,
