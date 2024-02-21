@@ -82,63 +82,61 @@ class RealMainViewModel @Inject constructor(
     }
 
     private suspend fun loadMore() {
-        if (_isLoading.value) {
-            return
-        }
-
-        try {
-            _isLoading.value = true
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                itemRepository.loadMore(pref.token)
-            } else {
-                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+        withinLoading {
+            try {
+                val pref = prefRepository.prefFlow.first()
+                if (pref != null) {
+                    itemRepository.loadMore(pref.token)
+                } else {
+                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
             }
-        } catch (e: Exception) {
-            Log.e("Stockin MainVM: ", e.stackTraceToString())
-        } finally {
-            _isLoading.value = false
         }
     }
 
     private suspend fun reload() {
-        if (_isLoading.value) {
-            return
-        }
-
-        try {
-            _isLoading.value = true
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                itemRepository.reload(pref.token)
-            } else {
-                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+        withinLoading {
+            try {
+                val pref = prefRepository.prefFlow.first()
+                if (pref != null) {
+                    itemRepository.reload(pref.token)
+                } else {
+                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
             }
-        } catch (e: Exception) {
-            Log.e("Stockin MainVM: ", e.stackTraceToString())
-            _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
-        } finally {
-            _isLoading.value = false
         }
     }
 
     private suspend fun delete(id: String) {
+        withinLoading {
+            try {
+                val pref = prefRepository.prefFlow.first()
+                if (pref != null) {
+                    itemRepository.delete(pref.token, id)
+                    _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
+                } else {
+                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+                }
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
+            }
+        }
+    }
+
+    private suspend fun withinLoading(action: suspend () -> Unit) {
         if (_isLoading.value) {
             return
         }
 
         try {
             _isLoading.value = true
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                itemRepository.delete(pref.token, id)
-                _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
-            } else {
-                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
-            }
-        } catch (e: Exception) {
-            Log.e("Stockin MainVM: ", e.stackTraceToString())
-            _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
+            action()
         } finally {
             _isLoading.value = false
         }
