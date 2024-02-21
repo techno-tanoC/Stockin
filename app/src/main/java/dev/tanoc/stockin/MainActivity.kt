@@ -11,10 +11,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
+import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
@@ -57,10 +57,6 @@ fun MainScreen(
 ) {
     val (state, effect, dispatch) = use(vm)
 
-    LaunchedEffect(Unit) {
-        dispatch(MainViewModel.Event.LoadMore)
-    }
-
     val onClick = { item: Item ->
         shareUrl(item.url)
     }
@@ -99,5 +95,12 @@ fun ItemListView(
             )
             Divider()
         }
+    }
+
+    LoadMoreHandler(
+        state = listState,
+        buffer = 10,
+    ) {
+        dispatch(MainViewModel.Event.LoadMore)
     }
 }
