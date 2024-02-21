@@ -6,13 +6,29 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
@@ -23,6 +39,7 @@ import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
 import dev.tanoc.stockin.viewmodel.RealMainViewModel
 import dev.tanoc.stockin.viewmodel.use
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -63,6 +80,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     vm: MainViewModel,
@@ -83,11 +101,50 @@ fun MainScreen(
         }
     }
 
+    var selected by remember { mutableStateOf<Item?>(null) }
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
+    val onEditClick = {
+        selected?.let {
+        }
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
+    }
+    val onDeleteClick = {
+        selected?.let {
+        }
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
+    }
+    val onDismissRequest = {
+        scope.launch {
+            sheetState.hide()
+        }
+        Unit
+    }
+
     val onClick = { item: Item ->
         shareUrl(item.url)
     }
     val onLongClick = { item: Item ->
+        selected = item
+        scope.launch {
+            sheetState.show()
+        }
+        Unit
     }
+
+    ItemModalView(
+        sheetState = sheetState,
+        onEditClick = onEditClick,
+        onDeleteClick = onDeleteClick,
+        onDismissRequest = onDismissRequest,
+    )
 
     MainScaffold(
         settingAction = settingAction,
@@ -99,6 +156,34 @@ fun MainScreen(
             onLongClick = onLongClick,
             dispatch = dispatch,
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ItemModalView(
+    sheetState: SheetState,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    if (sheetState.isVisible) {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = onDismissRequest,
+        ) {
+            ListItem(
+                leadingContent = { Icon(Icons.Default.Edit, null) },
+                headlineContent = { Text("Edit") },
+                modifier = Modifier.clickable { onEditClick() },
+            )
+            Divider()
+            ListItem(
+                leadingContent = { Icon(Icons.Default.Delete, null) },
+                headlineContent = { Text("Delete") },
+                modifier = Modifier.clickable { onDeleteClick() },
+            )
+        }
     }
 }
 
