@@ -2,6 +2,7 @@ package dev.tanoc.stockin.data
 
 import dev.tanoc.stockin.model.Data
 import dev.tanoc.stockin.model.Item
+import kotlinx.serialization.Serializable
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -13,6 +14,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import javax.inject.Inject
 
+@Serializable
 data class ItemParams(
     val title: String,
     val url: String,
