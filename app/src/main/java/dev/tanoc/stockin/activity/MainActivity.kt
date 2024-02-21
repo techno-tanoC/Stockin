@@ -115,6 +115,7 @@ fun MainScreen(
     }
     val onDeleteClick = {
         selected?.let {
+            dispatch(MainViewModel.Event.Delete(it.id))
         }
         scope.launch {
             sheetState.hide()
