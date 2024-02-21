@@ -77,6 +77,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("eu.bambooapps:compose-material3-pullrefresh:1.0.0")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.50")
