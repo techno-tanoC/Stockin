@@ -6,10 +6,11 @@ import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,6 +18,7 @@ import javax.inject.Inject
 interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewModel.Effect, MainViewModel.Event> {
     data class State(
         val items: List<Item>,
+        val isLoading: Boolean,
     )
 
     sealed class Effect {
@@ -34,12 +36,23 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
 class RealMainViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
 ) : ViewModel(), MainViewModel {
-    override val state = itemRepository.itemsFlow.map {
-        MainViewModel.State(it)
+    private val _isLoading = MutableStateFlow(false)
+
+    override val state = combine(
+        itemRepository.itemsFlow,
+        _isLoading,
+    ) { items, isLoading ->
+        MainViewModel.State(
+            items = items,
+            isLoading = isLoading,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
-        initialValue = MainViewModel.State(emptyList())
+        initialValue = MainViewModel.State(
+            items = emptyList(),
+            isLoading = false,
+        )
     )
 
     private val _effect = MutableSharedFlow<MainViewModel.Effect>()
@@ -56,6 +69,15 @@ class RealMainViewModel @Inject constructor(
     }
 
     private suspend fun loadMore() {
-        itemRepository.loadMore("debug")
+        if (_isLoading.value) {
+            return
+        }
+
+        try {
+            _isLoading.value = true
+            itemRepository.loadMore("debug")
+        } finally {
+            _isLoading.value = false
+        }
     }
 }
