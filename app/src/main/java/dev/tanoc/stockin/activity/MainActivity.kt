@@ -3,6 +3,7 @@ package dev.tanoc.stockin.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
@@ -40,6 +42,9 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this@MainActivity, PrefActivity::class.java)
                         startActivity(intent)
                     },
+                    showToast = {
+                        Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                    },
                 )
             }
         }
@@ -59,8 +64,19 @@ fun MainScreen(
     vm: MainViewModel,
     shareUrl: (String) -> Unit,
     settingAction: () -> Unit,
+    showToast: (String) -> Unit,
 ) {
     val (state, effect, dispatch) = use(vm)
+
+    LaunchedEffect(effect) {
+        effect.collect { effect ->
+            when (effect) {
+                is MainViewModel.Effect.ShowToast -> {
+                    showToast(effect.message)
+                }
+            }
+        }
+    }
 
     val onClick = { item: Item ->
         shareUrl(item.url)

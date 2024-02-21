@@ -1,8 +1,10 @@
 package dev.tanoc.stockin.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
+import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,6 +25,7 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
     )
 
     sealed class Effect {
+        data class ShowToast(val message: String) : Effect()
     }
 
     sealed class Event {
@@ -35,6 +39,7 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
 
 class RealMainViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
+    private val prefRepository: PrefRepository,
 ) : ViewModel(), MainViewModel {
     private val _isLoading = MutableStateFlow(false)
 
@@ -75,7 +80,14 @@ class RealMainViewModel @Inject constructor(
 
         try {
             _isLoading.value = true
-            itemRepository.loadMore("debug")
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.loadMore(pref.token)
+            } else {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            }
+        } catch (e: Exception) {
+            Log.e("Stockin MainVM: ", e.stackTraceToString())
         } finally {
             _isLoading.value = false
         }
