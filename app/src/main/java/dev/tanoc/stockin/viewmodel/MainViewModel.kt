@@ -30,6 +30,7 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
 
     sealed class Event {
         object LoadMore : Event()
+        data class Delete(val id: String) : Event()
     }
 
     override val state: StateFlow<State>
@@ -69,6 +70,9 @@ class RealMainViewModel @Inject constructor(
                 is MainViewModel.Event.LoadMore -> {
                     loadMore()
                 }
+                is MainViewModel.Event.Delete -> {
+                    delete(event.id)
+                }
             }
         }
     }
@@ -88,6 +92,28 @@ class RealMainViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("Stockin MainVM: ", e.stackTraceToString())
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
+    private suspend fun delete(id: String) {
+        if (_isLoading.value) {
+            return
+        }
+
+        try {
+            _isLoading.value = true
+            val pref = prefRepository.prefFlow.first()
+            if (pref != null) {
+                itemRepository.delete(pref.token, id)
+                _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
+            } else {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            }
+        } catch (e: Exception) {
+            Log.e("Stockin MainVM: ", e.stackTraceToString())
+            _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
         } finally {
             _isLoading.value = false
         }
