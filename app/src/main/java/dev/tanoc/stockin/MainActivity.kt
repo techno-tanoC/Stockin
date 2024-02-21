@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
-import dev.tanoc.stockin.component.StockinScaffold
+import dev.tanoc.stockin.component.MainScaffold
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
@@ -63,7 +63,10 @@ fun MainScreen(
     val onLongClick = { item: Item ->
     }
 
-    StockinScaffold {
+    MainScaffold(
+        settingAction = {},
+        addAction = {},
+    ) {
         ItemListView(
             items = state.items,
             onClick = onClick,
