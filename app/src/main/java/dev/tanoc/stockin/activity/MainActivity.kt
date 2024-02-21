@@ -35,6 +35,7 @@ import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.component.MainScaffold
+import dev.tanoc.stockin.component.PullRefreshBox
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import dev.tanoc.stockin.viewmodel.MainViewModel
@@ -168,12 +169,17 @@ fun MainScreen(
         settingAction = settingAction,
         addAction = addAction,
     ) {
-        ItemListView(
-            items = state.items,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            dispatch = dispatch,
-        )
+        PullRefreshBox(
+            refreshing = state.isLoading,
+            onRefresh = { dispatch(MainViewModel.Event.Reload) }
+        ) {
+            ItemListView(
+                items = state.items,
+                onClick = onClick,
+                onLongClick = onLongClick,
+                dispatch = dispatch,
+            )
+        }
     }
 }
 
