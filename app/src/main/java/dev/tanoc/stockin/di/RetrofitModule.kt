@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dev.tanoc.stockin.BuildConfig
 import dev.tanoc.stockin.data.ItemService
+import dev.tanoc.stockin.data.QueryService
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
@@ -27,6 +28,11 @@ object RetrofitModule {
 
     @Provides
     fun bindItemService(): ItemService {
+        return retrofit.create()
+    }
+
+    @Provides
+    fun bindQueryService(): QueryService {
         return retrofit.create()
     }
 }

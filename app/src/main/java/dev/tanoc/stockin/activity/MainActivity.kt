@@ -42,6 +42,10 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this@MainActivity, PrefActivity::class.java)
                         startActivity(intent)
                     },
+                    addAction = {
+                        val intent = Intent(this@MainActivity, NewItemActivity::class.java)
+                        startActivity(intent)
+                    },
                     showToast = {
                         Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
                     },
@@ -64,6 +68,7 @@ fun MainScreen(
     vm: MainViewModel,
     shareUrl: (String) -> Unit,
     settingAction: () -> Unit,
+    addAction: () -> Unit,
     showToast: (String) -> Unit,
 ) {
     val (state, effect, dispatch) = use(vm)
@@ -86,7 +91,7 @@ fun MainScreen(
 
     MainScaffold(
         settingAction = settingAction,
-        addAction = {},
+        addAction = addAction,
     ) {
         ItemListView(
             items = state.items,
