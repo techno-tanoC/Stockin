@@ -28,5 +28,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.PrefActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true"
+            android:theme="@style/Theme.Stockin">
+        </activity>
     </application>
 </manifest>

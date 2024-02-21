@@ -36,6 +36,10 @@ class MainActivity : ComponentActivity() {
                     shareUrl = {
                         shareUrl(it)
                     },
+                    settingAction = {
+                        val intent = Intent(this@MainActivity, PrefActivity::class.java)
+                        startActivity(intent)
+                    },
                 )
             }
         }
@@ -54,6 +58,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     vm: MainViewModel,
     shareUrl: (String) -> Unit,
+    settingAction: () -> Unit,
 ) {
     val (state, effect, dispatch) = use(vm)
 
@@ -64,7 +69,7 @@ fun MainScreen(
     }
 
     MainScaffold(
-        settingAction = {},
+        settingAction = settingAction,
         addAction = {},
     ) {
         ItemListView(
