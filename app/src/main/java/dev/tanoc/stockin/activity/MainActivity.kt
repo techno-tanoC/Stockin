@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
+import dev.tanoc.stockin.App
 import dev.tanoc.stockin.component.ItemView
 import dev.tanoc.stockin.component.LoadMoreHandler
 import dev.tanoc.stockin.component.MainScaffold
@@ -64,6 +65,9 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this@MainActivity, NewItemActivity::class.java)
                         startActivity(intent)
                     },
+                    editAction = {
+                        startEditItemActivity(it)
+                    },
                     showToast = {
                         Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
                     },
@@ -79,6 +83,16 @@ class MainActivity : ComponentActivity() {
         }
         startActivity(intent)
     }
+
+    private fun startEditItemActivity(item: Item) {
+        val intent = Intent(this@MainActivity, EditItemActivity::class.java).apply {
+            putExtra(App.ID, item.id)
+            putExtra(App.TITLE, item.title)
+            putExtra(App.URL, item.url)
+            putExtra(App.THUMBNAIL, item.thumbnail)
+        }
+        startActivity(intent)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,6 +102,7 @@ fun MainScreen(
     shareUrl: (String) -> Unit,
     settingAction: () -> Unit,
     addAction: () -> Unit,
+    editAction: (Item) -> Unit,
     showToast: (String) -> Unit,
 ) {
     val (state, effect, dispatch) = use(vm)
@@ -108,6 +123,7 @@ fun MainScreen(
 
     val onEditClick = {
         selected?.let {
+            editAction(it)
         }
         scope.launch {
             sheetState.hide()

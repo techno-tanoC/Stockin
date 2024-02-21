@@ -42,5 +42,12 @@
             android:exported="true"
             android:theme="@style/Theme.Stockin">
         </activity>
+
+        <activity
+            android:name=".activity.EditItemActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true"
+            android:theme="@style/Theme.Stockin">
+        </activity>
     </application>
 </manifest>
