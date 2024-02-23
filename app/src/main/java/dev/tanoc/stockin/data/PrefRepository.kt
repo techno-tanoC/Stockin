@@ -7,9 +7,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.tanoc.stockin.dataStore
 import javax.inject.Inject
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class PrefRepository @Inject constructor(
     @ApplicationContext val context: Context,

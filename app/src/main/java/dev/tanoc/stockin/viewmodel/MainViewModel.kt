@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
+import dev.tanoc.stockin.di.EmptyTokenException
 import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -82,6 +83,8 @@ class RealMainViewModel @Inject constructor(
         withinLoading {
             try {
                 itemRepository.loadMore()
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
             }
@@ -92,6 +95,8 @@ class RealMainViewModel @Inject constructor(
         withinLoading {
             try {
                 itemRepository.reload()
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
                 _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
@@ -104,6 +109,8 @@ class RealMainViewModel @Inject constructor(
             try {
                 itemRepository.delete(id)
                 _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
                 _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))

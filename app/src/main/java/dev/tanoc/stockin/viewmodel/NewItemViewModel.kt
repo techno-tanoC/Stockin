@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
 import dev.tanoc.stockin.data.QueryRepository
+import dev.tanoc.stockin.di.EmptyTokenException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,6 +94,8 @@ class RealNewItemViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true)
             val response = queryRepository.info(url)
             _state.value = _state.value.copy(title = response.title, thumbnail = response.thumbnail)
+        } catch (_: EmptyTokenException) {
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM", e.stackTraceToString())
             _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the info"))
@@ -111,6 +114,8 @@ class RealNewItemViewModel @Inject constructor(
             itemRepository.create(title, url, thumbnail)
             _effect.emit(NewItemViewModel.Effect.ShowToast("Created the item"))
             _effect.emit(NewItemViewModel.Effect.Finish)
+        } catch (_: EmptyTokenException) {
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM: ", e.stackTraceToString())
             _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to create the item"))
