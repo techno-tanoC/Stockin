@@ -10,16 +10,23 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun PrefForm(
-    token: String,
-    onTokenChanged: (String) -> Unit,
-    onSubmit: () -> Unit,
+    onSubmit: (String) -> Unit,
     onClear: () -> Unit,
 ) {
+    var token by remember { mutableStateOf("") }
+    val onTokenChanged = { input: String ->
+        token = input
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,7 +42,7 @@ fun PrefForm(
                 .fillMaxWidth(),
         )
         Button(
-            onClick = onSubmit,
+            onClick = { onSubmit(token) },
             modifier = Modifier
                 .padding(4.dp, 8.dp)
                 .fillMaxWidth(),

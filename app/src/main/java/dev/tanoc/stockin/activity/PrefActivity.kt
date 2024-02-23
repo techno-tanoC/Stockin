@@ -4,32 +4,39 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.tanoc.stockin.Pref.clearPref
+import dev.tanoc.stockin.Pref.setPref
 import dev.tanoc.stockin.component.PrefForm
 import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
-import dev.tanoc.stockin.viewmodel.PrefViewModel
-import dev.tanoc.stockin.viewmodel.RealPrefViewModel
-import dev.tanoc.stockin.viewmodel.use
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PrefActivity : ComponentActivity() {
-    @Inject lateinit var viewModel: RealPrefViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val scope = rememberCoroutineScope()
             StockinTheme {
                 PrefScreen(
-                    vm = viewModel,
-                    finish = { finish() },
+                    onSubmit = {
+                        scope.launch {
+                            this@PrefActivity.setPref(it)
+                            finish()
+                        }
+                    },
+                    onClear = {
+                        scope.launch {
+                            this@PrefActivity.clearPref()
+                            finish()
+                        }
+                    },
+                    finish = {
+                        finish()
+                    },
                 )
             }
         }
@@ -38,47 +45,14 @@ class PrefActivity : ComponentActivity() {
 
 @Composable
 fun PrefScreen(
-    vm: PrefViewModel,
+    onSubmit: (String) -> Unit,
+    onClear: () -> Unit,
     finish: () -> Unit,
 ) {
-    val (_, effect, dispatch) = use(vm)
-
-    LaunchedEffect(effect) {
-        effect.collect { effect ->
-            when (effect) {
-                is PrefViewModel.Effect.Finish -> {
-                    finish()
-                }
-            }
-        }
-    }
-
     StockinScaffold {
-        PrefFormView(
-            dispatch = dispatch,
+        PrefForm(
+            onSubmit = onSubmit,
+            onClear = onClear
         )
     }
-}
-
-@Composable
-fun PrefFormView(
-    dispatch: (PrefViewModel.Event) -> Unit,
-) {
-    var token by remember { mutableStateOf("") }
-    val onTokenChanged = { input: String ->
-        token = input
-    }
-    val onSubmit = {
-        dispatch(PrefViewModel.Event.UpdateToken(token))
-    }
-    val onClear = {
-        dispatch(PrefViewModel.Event.ClearToken)
-    }
-
-    PrefForm(
-        token = token,
-        onTokenChanged = onTokenChanged,
-        onSubmit = onSubmit,
-        onClear = onClear
-    )
 }
