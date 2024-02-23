@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
-import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.data.QueryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,7 +43,6 @@ interface NewItemViewModel : UnidirectionalViewModel<NewItemViewModel.State, New
 class RealNewItemViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
     private val queryRepository: QueryRepository,
-    private val prefRepository: PrefRepository,
 ) : ViewModel(), NewItemViewModel {
     private val _state = MutableStateFlow(
         NewItemViewModel.State(
@@ -94,13 +91,8 @@ class RealNewItemViewModel @Inject constructor(
 
         try {
             _state.value = _state.value.copy(isLoading = true)
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                val response = queryRepository.info(pref.token, url)
-                _state.value = _state.value.copy(title = response.title, thumbnail = response.thumbnail)
-            } else {
-                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
-            }
+            val response = queryRepository.info(url)
+            _state.value = _state.value.copy(title = response.title, thumbnail = response.thumbnail)
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM", e.stackTraceToString())
             _effect.emit(NewItemViewModel.Effect.ShowToast("Failed to query the info"))
@@ -116,13 +108,8 @@ class RealNewItemViewModel @Inject constructor(
 
         try {
             _state.value = _state.value.copy(isLoading = true)
-            val pref = prefRepository.prefFlow.first()
-            if (pref != null) {
-                itemRepository.create(pref.token, title, url, thumbnail)
-                _effect.emit(NewItemViewModel.Effect.ShowToast("Created the item"))
-            } else {
-                _effect.emit(NewItemViewModel.Effect.ShowToast("Empty token"))
-            }
+            itemRepository.create(title, url, thumbnail)
+            _effect.emit(NewItemViewModel.Effect.ShowToast("Created the item"))
             _effect.emit(NewItemViewModel.Effect.Finish)
         } catch (e: Exception) {
             Log.e("Stockin NewItemVM: ", e.stackTraceToString())

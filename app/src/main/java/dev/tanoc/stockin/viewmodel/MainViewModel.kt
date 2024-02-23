@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tanoc.stockin.data.ItemRepository
-import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.model.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,7 +39,6 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
 
 class RealMainViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
-    private val prefRepository: PrefRepository,
 ) : ViewModel(), MainViewModel {
     private val _isLoading = MutableStateFlow(false)
 
@@ -84,12 +81,7 @@ class RealMainViewModel @Inject constructor(
     private suspend fun loadMore() {
         withinLoading {
             try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.loadMore(pref.token)
-                } else {
-                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
-                }
+                itemRepository.loadMore()
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
             }
@@ -99,12 +91,7 @@ class RealMainViewModel @Inject constructor(
     private suspend fun reload() {
         withinLoading {
             try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.reload(pref.token)
-                } else {
-                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
-                }
+                itemRepository.reload()
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
                 _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
@@ -115,13 +102,8 @@ class RealMainViewModel @Inject constructor(
     private suspend fun delete(id: String) {
         withinLoading {
             try {
-                val pref = prefRepository.prefFlow.first()
-                if (pref != null) {
-                    itemRepository.delete(pref.token, id)
-                    _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
-                } else {
-                    _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
-                }
+                itemRepository.delete(id)
+                _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
             } catch (e: Exception) {
                 Log.e("Stockin MainVM: ", e.stackTraceToString())
                 _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))

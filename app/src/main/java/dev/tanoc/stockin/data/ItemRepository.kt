@@ -8,29 +8,29 @@ class ItemRepository @Inject constructor(
 ) {
     val itemsFlow = localItemDataSource.itemsFlow
 
-    suspend fun reload(token: String) {
-        val items = remoteItemDataSource.index(token, "ffffffff-ffff-ffff-ffff-ffffffffffff")
+    suspend fun reload() {
+        val items = remoteItemDataSource.index("ffffffff-ffff-ffff-ffff-ffffffffffff")
         localItemDataSource.replaceAll(items)
     }
 
-    suspend fun loadMore(token: String) {
+    suspend fun loadMore() {
         val lastId = itemsFlow.value.lastOrNull()?.id ?: "ffffffff-ffff-ffff-ffff-ffffffffffff"
-        val items = remoteItemDataSource.index(token, lastId)
+        val items = remoteItemDataSource.index(lastId)
         localItemDataSource.concat(items)
     }
 
-    suspend fun create(token: String, title: String, url: String, thumbnail: String) {
-        val item = remoteItemDataSource.create(token, title, url, thumbnail)
+    suspend fun create(title: String, url: String, thumbnail: String) {
+        val item = remoteItemDataSource.create(title, url, thumbnail)
         localItemDataSource.prepend(item)
     }
 
-    suspend fun update(token: String, id: String, title: String, url: String, thumbnail: String) {
-        val item = remoteItemDataSource.update(token, id, title, url, thumbnail)
+    suspend fun update(id: String, title: String, url: String, thumbnail: String) {
+        val item = remoteItemDataSource.update(id, title, url, thumbnail)
         localItemDataSource.patch(item)
     }
 
-    suspend fun delete(token: String, id: String) {
-        remoteItemDataSource.delete(token, id)
+    suspend fun delete(id: String) {
+        remoteItemDataSource.delete(id)
         localItemDataSource.remove(id)
     }
 }

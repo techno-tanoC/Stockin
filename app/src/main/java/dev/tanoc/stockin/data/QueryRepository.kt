@@ -6,7 +6,7 @@ import javax.inject.Inject
 class QueryRepository @Inject constructor(
     private val queryDataSource: QueryDataSource,
 ) {
-    suspend fun info(token: String, url: String): Info {
-        return queryDataSource.info(token, url)
+    suspend fun info(url: String): Info {
+        return queryDataSource.info(url)
     }
 }

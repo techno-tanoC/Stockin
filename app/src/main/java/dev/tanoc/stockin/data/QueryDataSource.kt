@@ -5,7 +5,6 @@ import dev.tanoc.stockin.model.Info
 import kotlinx.serialization.Serializable
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.Header
 import retrofit2.http.POST
 import javax.inject.Inject
 
@@ -16,15 +15,14 @@ data class InfoParams(
 
 interface QueryService {
     @POST("/query/info")
-    suspend fun info(@Header("Authorization") token: String, @Body params: InfoParams): Response<Data<Info>>
+    suspend fun info(@Body params: InfoParams): Response<Data<Info>>
 }
 
 class QueryDataSource @Inject constructor(
     private val queryService: QueryService,
 ) {
-    suspend fun info(token: String, url: String): Info {
-        val bearer = "Bearer $token"
+    suspend fun info(url: String): Info {
         val params = InfoParams(url)
-        return queryService.info(bearer, params).body()?.data!!
+        return queryService.info(params).body()?.data!!
     }
 }
