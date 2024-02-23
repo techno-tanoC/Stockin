@@ -8,13 +8,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.tanoc.stockin.BuildConfig
+import dev.tanoc.stockin.Pref.tokenFlow
 import dev.tanoc.stockin.data.ItemService
-import dev.tanoc.stockin.data.PrefRepository
 import dev.tanoc.stockin.data.QueryService
-import dev.tanoc.stockin.dataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -33,9 +31,7 @@ object RetrofitModule {
     private val json = Json { ignoreUnknownKeys = true }
 
     private fun buildRetrofit(context: Context): Retrofit {
-        val tokenFlow = context.applicationContext.dataStore.data.map {
-            it[PrefRepository.tokenKey] ?: ""
-        }
+        val tokenFlow = context.tokenFlow()
         val tokenInterceptor = TokenInterceptor(tokenFlow)
         val client = OkHttpClient
             .Builder()

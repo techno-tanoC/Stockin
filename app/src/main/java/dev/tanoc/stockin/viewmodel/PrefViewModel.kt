@@ -1,8 +1,11 @@
 package dev.tanoc.stockin.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.tanoc.stockin.data.PrefRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.tanoc.stockin.Pref.clearPref
+import dev.tanoc.stockin.Pref.setPref
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +31,7 @@ interface PrefViewModel : UnidirectionalViewModel<PrefViewModel.State, PrefViewM
 }
 
 class RealPrefViewModel @Inject constructor(
-    private val prefRepository: PrefRepository,
+    @ApplicationContext val context: Context,
 ) : ViewModel(), PrefViewModel {
     private val _state = MutableStateFlow(PrefViewModel.State)
     override val state = _state.asStateFlow()
@@ -40,11 +43,11 @@ class RealPrefViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is PrefViewModel.Event.UpdateToken -> {
-                    prefRepository.setPref(event.token)
+                    context.setPref(event.token)
                     _effect.emit(PrefViewModel.Effect.Finish)
                 }
                 is PrefViewModel.Event.ClearToken -> {
-                    prefRepository.clearPref()
+                    context.clearPref()
                     _effect.emit(PrefViewModel.Effect.Finish)
                 }
             }
