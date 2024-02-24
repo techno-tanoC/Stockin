@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                         shareUrl(it)
                     },
                     settingAction = {
-                        val intent = Intent(this@MainActivity, PrefActivity::class.java)
+                        val intent = Intent(this@MainActivity, TokenActivity::class.java)
                         startActivity(intent)
                     },
                     addAction = {

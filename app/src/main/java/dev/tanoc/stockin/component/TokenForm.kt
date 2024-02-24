@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PrefForm(
+fun TokenForm(
     onSubmit: (String) -> Unit,
     onClear: () -> Unit,
 ) {

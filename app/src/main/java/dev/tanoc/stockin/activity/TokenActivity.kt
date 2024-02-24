@@ -6,36 +6,33 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.tanoc.stockin.Pref.clearPref
-import dev.tanoc.stockin.Pref.setPref
-import dev.tanoc.stockin.component.PrefForm
+import dev.tanoc.stockin.TokenStore.clearToken
+import dev.tanoc.stockin.TokenStore.setToken
+import dev.tanoc.stockin.component.TokenForm
 import dev.tanoc.stockin.component.StockinScaffold
 import dev.tanoc.stockin.ui.theme.StockinTheme
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PrefActivity : ComponentActivity() {
+class TokenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             val scope = rememberCoroutineScope()
             StockinTheme {
-                PrefScreen(
+                TokenScreen(
                     onSubmit = {
                         scope.launch {
-                            this@PrefActivity.setPref(it)
+                            this@TokenActivity.setToken(it)
                             finish()
                         }
                     },
                     onClear = {
                         scope.launch {
-                            this@PrefActivity.clearPref()
+                            this@TokenActivity.clearToken()
                             finish()
                         }
-                    },
-                    finish = {
-                        finish()
                     },
                 )
             }
@@ -44,13 +41,12 @@ class PrefActivity : ComponentActivity() {
 }
 
 @Composable
-fun PrefScreen(
+fun TokenScreen(
     onSubmit: (String) -> Unit,
     onClear: () -> Unit,
-    finish: () -> Unit,
 ) {
     StockinScaffold {
-        PrefForm(
+        TokenForm(
             onSubmit = onSubmit,
             onClear = onClear
         )

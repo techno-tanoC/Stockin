@@ -8,7 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.tanoc.stockin.BuildConfig
-import dev.tanoc.stockin.Pref.tokenFlow
+import dev.tanoc.stockin.TokenStore.tokenFlow
 import dev.tanoc.stockin.data.ItemService
 import dev.tanoc.stockin.data.QueryService
 import kotlinx.coroutines.flow.Flow

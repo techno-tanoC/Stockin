@@ -9,7 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-object Pref {
+object TokenStore {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
     private val tokenKey = stringPreferencesKey("token_key")
 
@@ -19,13 +19,13 @@ object Pref {
         }
     }
 
-    suspend fun Context.setPref(token: String) {
+    suspend fun Context.setToken(token: String) {
         this.dataStore.edit { preferences ->
             preferences[tokenKey] = token
         }
     }
 
-    suspend fun Context.clearPref() {
+    suspend fun Context.clearToken() {
         this.dataStore.edit {
             it.clear()
         }
