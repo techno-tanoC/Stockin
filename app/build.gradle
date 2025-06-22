@@ -3,8 +3,15 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
+    // Kapt
     id("org.jetbrains.kotlin.kapt")
+
+    // Hilt
     id('com.google.dagger.hilt.android')
+
+    // Kotlin Serialization
+    // https://kotlinlang.org/docs/serialization.html
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -22,7 +29,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "ENDPOINT", "\"http://10.0.2.2:3000/\"")
+        }
         release {
+            buildConfigField("String", "ENDPOINT", "\"https://stockin.tanoc.dev/\"")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -36,6 +47,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig = true
     }
 }
 
@@ -53,8 +65,13 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
 
+    // Hilt
     implementation 'com.google.dagger:hilt-android:2.53.1'
     kapt 'com.google.dagger:hilt-compiler:2.53.1'
+
+    // Coil
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
