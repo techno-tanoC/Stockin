@@ -1,7 +1,9 @@
 package dev.tanoc.stockin.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.tanoc.stockin.EmptyTokenException
 import dev.tanoc.stockin.UnidirectionalViewModel
 import dev.tanoc.stockin.model.Item
 import dev.tanoc.stockin.repo.ItemRepo
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewModel.Effect, MainViewModel.Event> {
@@ -34,13 +37,6 @@ interface MainViewModel : UnidirectionalViewModel<MainViewModel.State, MainViewM
     override val state: StateFlow<State>
     override val effect: Flow<Effect>
     override fun event(event: Event)
-
-    companion object {
-        val initial = MainViewModel.State(
-            items = emptyList(),
-            isLoading = false,
-        )
-    }
 }
 
 class RealMainViewModel @Inject constructor(
@@ -59,12 +55,80 @@ class RealMainViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
-        initialValue = MainViewModel.initial,
+        initialValue = MainViewModel.State(
+            items = emptyList(),
+            isLoading = false,
+        )
     )
 
     private val _effect = MutableSharedFlow<MainViewModel.Effect>()
     override val effect = _effect.asSharedFlow()
 
     override fun event(event: MainViewModel.Event) {
+        viewModelScope.launch {
+            when (event) {
+                is MainViewModel.Event.LoadMore -> {
+                    loadMore()
+                }
+                is MainViewModel.Event.Reload -> {
+                    reload()
+                }
+                is MainViewModel.Event.Delete -> {
+                    delete(event.id)
+                }
+            }
+        }
+    }
+
+    private suspend fun loadMore() {
+        withinLoading {
+            try {
+                itemRepo.loadMore()
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+            }
+        }
+    }
+
+    private suspend fun reload() {
+        withinLoading {
+            try {
+                itemRepo.reload()
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _effect.emit(MainViewModel.Effect.ShowToast("Failed to reload items"))
+            }
+        }
+    }
+
+    private suspend fun delete(id: String) {
+        withinLoading {
+            try {
+                itemRepo.delete(id)
+                _effect.emit(MainViewModel.Effect.ShowToast("Deleted the item"))
+            } catch (_: EmptyTokenException) {
+                _effect.emit(MainViewModel.Effect.ShowToast("Empty token"))
+            } catch (e: Exception) {
+                Log.e("Stockin MainVM: ", e.stackTraceToString())
+                _effect.emit(MainViewModel.Effect.ShowToast("Failed to delete the item"))
+            }
+        }
+    }
+
+    private suspend fun withinLoading(action: suspend () -> Unit) {
+        if (_isLoading.value) {
+            return
+        }
+
+        try {
+            _isLoading.value = true
+            action()
+        } finally {
+            _isLoading.value = false
+        }
     }
 }
